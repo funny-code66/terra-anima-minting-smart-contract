@@ -21,6 +21,23 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          
+      - uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Checkout sources
         uses: actions/checkout@v2
 
@@ -51,14 +68,6 @@ jobs:
       - name: setup-terrain
         run: |
           npm i -g @iboss/terrain
-
-      - name: Compile WASM contract
-        uses: actions-rs/cargo@v1
-        with:
-          command: wasm
-          args: --locked
-        env:
-          RUSTFLAGS: "-C link-arg=-s"
 
       - name: Build WASM contract
         uses: actions-rs/cargo@v1
