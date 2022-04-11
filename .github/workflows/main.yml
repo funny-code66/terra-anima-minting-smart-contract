@@ -76,5 +76,5 @@ jobs:
 
       - name: deploy to testnet
         run: |
-          terrain deploy cw721-royalty --signer eyJuYW1lIjoic3dlZXRfd2FsbGV0IiwiYWRkcmVzcyI6InRlcnJhMTBoY3JqMHRsdW04bmtrMmFwejN2NnkwdnJkZDhrOW11cnM5dmZ5IiwiZW5jcnlwdGVkX2tleSI6ImZkZmZjZDlhZjU3YWUwOTkzMTVjNGRmNmM4ZTdkMWZlNTczMGNjMWZjYWVjOWRmN2Q1NGRiODllNzQ5MjY4YWV0L1hMOCtjOGJCM3Q5UVBpUXpRSHlTcTNWMUxQRWZHTkNSQkl4K2ZXVGpUdlRUdFh1UGV1UlA2T2RDNGV5OFp3cVMveTZYK3Evc25uK2N0U2l1TldrMEcwMzlaNjhqb2x1V3hpMGVnVllnTT0ifQ== --network testnet --set-signer-as-admin
+          terrain deploy cw721-royalty --signer eyJuYW1lIjoic3dlZXRfd2FsbGV0Iiwi --network testnet --set-signer-as-admin
           terrain sync-refs
