@@ -24,16 +24,16 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
+            /home/runner/.cargo/bin/
+            /home/runner/.cargo/registry/index/
+            /home/runner/.cargo/registry/cache/
+            /home/runner/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           
       - uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: /home/runner/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
@@ -68,11 +68,6 @@ jobs:
       - name: setup-terrain
         run: |
           npm i -g @iboss/terrain
-
-      - name: Build WASM contract
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
 
       - name: deploy to testnet
         run: |
