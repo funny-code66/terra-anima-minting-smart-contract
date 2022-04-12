@@ -47,12 +47,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.60.0
-          target: wasm32-unknown-unknown
-          override: true
+        run: |
+          rustup default stable
+
+          # add wasm as compilation target
+          rustup target add wasm32-unknown-unknown
+
+          # for generating contract
+          cargo install cargo-generate --features vendored-openssl
+          cargo install cargo-run-script
 
       - name: github-actions-nodejs
         # You may pin to the exact commit or the version.
@@ -73,12 +76,6 @@ jobs:
       - name: setup-terrain
         run: |
           npm i -g @iboss/terrain
-
-      - name: Install cargo-run-script
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-run-script
 
       - name: deploy to testnet
         run: |
