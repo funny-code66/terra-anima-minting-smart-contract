@@ -75,7 +75,7 @@ jobs:
 
       - name: setup-terrain
         run: |
-          npm i -g @iboss/terrain
+          npm i -g @terra-money/terrain
 
       - name: deploy to testnet
         run: |
