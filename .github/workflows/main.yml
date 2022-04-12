@@ -17,8 +17,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
 
-  test:
-    name: Test Suite
+  build:
+    name: Build Suite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v3
@@ -84,3 +84,22 @@ jobs:
         run: |
           terrain deploy cw721-royalty --signer custom_tester_1 --network testnet --set-signer-as-admin
           terrain sync-refs
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: setup-terrain
+        run: |
+          uname -s # kernel name
+          uname -r # kernel release
+          uname -v # kernel version
+          uname -n # network node hostname
+          uname -m # machine hardware architecture
+          uname -p # processor type
+          uname -i # hardware platform
+          uname -o # os info
+          uname -o # os info
+          lshw # hardware info
+
