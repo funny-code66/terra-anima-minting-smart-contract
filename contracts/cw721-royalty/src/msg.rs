@@ -39,11 +39,7 @@ pub enum ExecuteMsg {
     RevokeAll { operator: String },
 
     /// Mint a new NFT, can only be called by the contract minter
-    Mint {
-        msg: MintMsg<Extension>,
-        denom: String,
-        amount: Uint128,
-    }
+    Mint(MintMsg<Extension>)
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
@@ -86,6 +82,7 @@ impl From<ExecuteMsg> for Cw721ExecuteMsg {
     fn from (msg: ExecuteMsg) -> Cw721ExecuteMsg {
         match msg {
             // Transfer is a base message to move a token to another account without triggering actions
+            ExecuteMsg::Mint(msg) => Cw721ExecuteMsg::Mint(msg),
             ExecuteMsg::TransferNft { recipient, token_id } =>
             Cw721ExecuteMsg::TransferNft { recipient, token_id },
             

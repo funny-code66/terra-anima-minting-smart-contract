@@ -1,7 +1,8 @@
-use crate::error::ContractError;
+use cw721_base::ContractError;
 use crate::msg::{InstantiateMsg, ExecuteMsg, MintMsg, MinterResponse, QueryMsg};
 use crate::state::{Trait, Metadata, Extension, Cw721ExtendedContract};
 use crate::query::{ check_royalties, query_royalties_info };
+use crate::execute::execute_mint;
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
@@ -32,18 +33,8 @@ pub mod entry {
     ) -> Result<Response, ContractError> {
         // Cw721ExtendedContract::default().execute(deps, env, info, msg)
         match msg {
-            ExecuteMsg::Mint(msg) => {
-                
-                Cw721ExtendedContract::default().execute(deps, env, info, ExecuteMsg::Mint(
-                MintMsg {
-                    extension: Some(Metadata {
-                        royalty_payment_address: Some("".to_string()),
-                        ..msg.extension.unwrap()
-                    }),
-                    ..msg
-                }
-            ))},
-            _ => Cw721ExtendedContract::default().execute(deps, env, info, msg),
+            ExecuteMsg::Mint(msg) => execute_mint(deps, env, info, ExecuteMsg::Mint(msg)),
+            _ => Cw721ExtendedContract::default().execute(deps, env, info, msg.into()),
         }
     }
 
@@ -98,7 +89,7 @@ mod tests {
         };
         let exec_msg = ExecuteMsg::Mint(mint_msg.clone());
         contract
-            .execute(deps.as_mut(), mock_env(), info, exec_msg)
+            .execute(deps.as_mut(), mock_env(), info, exec_msg.into())
             .unwrap();
 
         let res = contract.nft_info(deps.as_ref(), token_id.into()).unwrap();
