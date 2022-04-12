@@ -7,6 +7,6 @@ module.exports = {
       "awkward escape town eight expect time custom park sweet anchor advance defense remind tooth shine hidden normal radar hip drill champion minute nurse spawn",
   },
   custom_tester_2: {
-    privateKey: "fGl1yNoUnnNUqTUXXhxH9vJU0htlz91WwBt3fQw+ixw=",
+    privateKey: "fGl1yNoUnnNUqTUXXhxH9vJU0htlz9lWwBt3fQw+ixw=",
   },
 };
