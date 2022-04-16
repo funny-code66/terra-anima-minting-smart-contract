@@ -40,7 +40,8 @@ function App() {
       token_id,
       owner_address,
       nft_name,
-      image_url
+      image_url,
+      1000000
     )
     if (response.code !== 0) {
       const error_message = response.raw_log

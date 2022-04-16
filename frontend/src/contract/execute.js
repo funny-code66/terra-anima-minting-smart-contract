@@ -1,4 +1,4 @@
-import { LCDClient, MsgExecuteContract, Fee } from "@terra-money/terra.js";
+import { LCDClient, MsgExecuteContract, Fee, Coin } from "@terra-money/terra.js";
 import { contractAddress } from "./address";
 
 // ==== utils ====
@@ -8,7 +8,7 @@ const until = Date.now() + 1000 * 60 * 60;
 const untilInterval = Date.now() + 1000 * 60;
 
 const _exec =
-  (msg, fee = new Fee(200000, { uluna: 10000 })) =>
+  (msg, cost, fee = new Fee(200000, { uluna: 10000 })) =>
   async (wallet) => {
     const lcd = new LCDClient({
       URL: wallet.network.lcd,
@@ -21,7 +21,8 @@ const _exec =
         new MsgExecuteContract(
           wallet.walletAddress,
           contractAddress(wallet),
-          msg
+          msg,
+          { uluna: cost }
         ),
       ],
     });
@@ -45,13 +46,13 @@ const _exec =
 
 // ==== execute contract ====
 
-export const mint = async (wallet, token_id, owner_address, nft_name, image_url) => _exec(
+export const mint = async (wallet, token_id, owner_address, nft_name, image_url, cost) => _exec(
   { mint: {
     owner: owner_address,
     token_id: token_id,
     extension: {
       name: nft_name,
       image: image_url,
-    },
+    }
   }
-})(wallet);
+}, cost)(wallet);
