@@ -46,14 +46,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
-      # - name: Install stable toolchain
-      #   run: |
-      #     rustup default stable
+      - name: Install stable toolchain
+        run: |
+          # rustup default stable
 
           # add wasm as compilation target
-      #     rustup target add wasm32-unknown-unknown
+          rustup target add wasm32-unknown-unknown
 
-          # for generating contract
+      #    # for generating contract
       #     cargo install cargo-generate --features vendored-openssl
       #     cargo install cargo-run-script
 
