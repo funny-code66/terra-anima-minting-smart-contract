@@ -1,13 +1,17 @@
 use cosmwasm_std::{Coin, DepsMut, Env, MessageInfo, StdResult, Response, Uint128};
 use crate::msg::{ ExecuteMsg, MintMsg };
 use cw721_base::{Cw721Contract, ContractError};
+// use cw721_base::msg::Mint;
 use crate::state::Cw721ExtendedContract;
-pub fn execute_mint(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg) -> Result<Response, ContractError> {
+use crate::state::Extension;
+
+pub type Cw721MintMsg = MintMsg<Extension>;
+pub fn execute_mint(deps: DepsMut, env: Env, info: MessageInfo, msg: MintMsg<Extension>) -> Result<Response, ContractError> {
     let mut fund = Coin {
         amount: Uint128::from(0u128),
         denom: String::from("luna"),
     };
-    for coin in info.funds {
+    for coin in info.clone().funds {
         if coin.denom == "luna" {
             fund = Coin {
                 amount: fund.amount + coin.amount,
@@ -41,19 +45,20 @@ pub fn execute_mint(deps: DepsMut, env: Env, info: MessageInfo, msg: ExecuteMsg)
         return Err(ContractError::Unauthorized {});
     }
     else {
-        return Ok(Response::new()
-            .add_attribute("action", "mint")
-            .add_attribute("minter", info.sender)
-            .add_attribute("token_id", token_count.to_string())
-        )
+        Cw721ExtendedContract::default().execute(deps, env, info.clone(), ExecuteMsg::Mint(
+            // MintMsg {
+            //     extension: Some(Metadata {
+            //         royalty_payment_address: Some("".to_string()),
+            //         ..msg.extension.unwrap()
+            //     }),
+            //     ..msg::Mint
+            // }
+            msg,
+        ).into())
+        // return Ok(Response::new()
+        //     .add_attribute("action", "mint")
+        //     .add_attribute("minter", info.sender)
+        //     .add_attribute("token_id", token_count.to_string())
+        // )
     }
-    // Cw721ExtendedContract::default().execute(deps, env, info, ExecuteMsg::Mint(
-    //     MintMsg {
-    //         extension: Some(Metadata {
-    //             royalty_payment_address: Some("".to_string()),
-    //             ..msg.extension.unwrap()
-    //         }),
-    //         ..msg
-    //     }
-    // ))}
 }

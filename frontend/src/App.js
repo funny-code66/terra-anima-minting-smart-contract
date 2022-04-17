@@ -43,6 +43,7 @@ function App() {
       image_url,
       1000000
     )
+    console.log("response:", response)
     if (response.code !== 0) {
       const error_message = response.raw_log
       switch (true) {
@@ -64,6 +65,8 @@ function App() {
       connectedWallet,
       token_id
     )
+
+    console.log("nft_data:", nft_data)
     setNFTMetadata(nft_data)
     setOpen(true)
     setUpdating(false)
