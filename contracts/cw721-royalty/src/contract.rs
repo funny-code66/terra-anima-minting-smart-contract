@@ -33,7 +33,7 @@ pub mod entry {
     ) -> Result<Response, ContractError> {
         // Cw721ExtendedContract::default().execute(deps, env, info, msg)
         match msg {
-            ExecuteMsg::Mint(msg) => execute_mint(deps, env, info, ExecuteMsg::Mint(msg)),
+            ExecuteMsg::Mint(mint_msg) => execute_mint(deps, env, info, mint_msg),
             _ => Cw721ExtendedContract::default().execute(deps, env, info, msg.into()),
         }
     }
