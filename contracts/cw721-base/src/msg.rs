@@ -1,7 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::Binary;
+use cosmwasm_std::{Binary, Uint128};
 use cw721::Expiration;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -126,10 +126,46 @@ pub enum QueryMsg {
 
     // Return the minter
     Minter {},
+    
+    // Check if NFT tokenURI is revealed
+    IsOnReveal {},
+
+    // Get token URI according to its id.
+    GetTokenUri {
+        token_id: String,
+    },
+
+    RoyaltyInfo {
+        token_id: String,
+        sale_price: Uint128,
+    },
+    CheckRoyalties {},
 }
 
 /// Shows who can mint these tokens
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct MinterResponse {
     pub minter: String,
+}
+
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct RoyaltiesInfoResponse {
+    pub address: String,
+    pub royalty_amount: Uint128,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct CheckRoyaltiesResponse {
+    pub royalty_payments: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct IsOnRevealResponse {
+    pub is_on_reveal: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct GetTokenUriResponse {
+    pub token_uri: String,
 }

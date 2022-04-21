@@ -3,10 +3,36 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
-use cosmwasm_std::{Addr, BlockInfo, StdResult, Storage};
+use cosmwasm_std::{Addr, BlockInfo, Empty, StdResult, Storage};
 
 use cw721::{ContractInfoResponse, CustomMsg, Cw721, Expiration};
 use cw_storage_plus::{Index, IndexList, IndexedMap, Item, Map, MultiIndex};
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug, Default)]
+pub struct Trait {
+    pub display_type: Option<String>,
+    pub trait_type: String,
+    pub value: String,
+}
+
+// see: https://docs.opensea.io/docs/metadata-standards
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug, Default)]
+pub struct Metadata {
+    pub image: Option<String>,
+    pub image_data: Option<String>,
+    pub external_url: Option<String>,
+    pub description: Option<String>,
+    pub name: Option<String>,
+    pub attributes: Option<Vec<Trait>>,
+    pub background_color: Option<String>,
+    pub animation_url: Option<String>,
+    pub youtube_url: Option<String>,
+    // royalty info
+    pub royalty_percentage: Option<u64>,
+    pub royalty_payment_address: Option<String>,
+}
+
+pub type Extension = Option<Metadata>;
 
 pub struct Cw721Contract<'a, T, C>
 where
@@ -81,6 +107,8 @@ where
         Ok(val)
     }
 }
+
+pub type Cw721ExtendedContract<'a> = Cw721Contract<'a, Extension, Empty>;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct TokenInfo<T> {

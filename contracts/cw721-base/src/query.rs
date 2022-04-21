@@ -10,8 +10,8 @@ use cw721::{
 };
 use cw_storage_plus::Bound;
 
-use crate::msg::{MinterResponse, QueryMsg};
-use crate::state::{Approval, Cw721Contract, TokenInfo};
+use crate::msg::*;
+use crate::state::*;
 
 const DEFAULT_LIMIT: u32 = 10;
 const MAX_LIMIT: u32 = 30;
@@ -156,7 +156,7 @@ where
         })
     }
 
-    pub fn query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
+    pub fn _query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         match msg {
             QueryMsg::Minter {} => to_binary(&self.minter(deps)?),
             QueryMsg::ContractInfo {} => to_binary(&self.contract_info(deps)?),
@@ -198,6 +198,7 @@ where
             QueryMsg::AllTokens { start_after, limit } => {
                 to_binary(&self.all_tokens(deps, start_after, limit)?)
             }
+            _ => panic!("Cannot recognize query"),
         }
     }
 }
