@@ -100,14 +100,14 @@ where
                 };
             }
         }
-        // let token_minted: NumTokensResponse = deps
-        //     .querier
-        //     .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
-        let token_minted: u64 = self.token_count.load(deps.storage)?;
+        let token_minted: NumTokensResponse = deps
+            .querier
+            .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
+        // let token_minted: u64 = self.token_count.load(deps.storage)?;
 
-        let can_mint = match token_minted < 1000 {
+        let can_mint = match token_minted.count < 1000 {
             true => match fund.amount.u128() {
-                130000 => true,
+                130000 => msg.token_num == String::from("a"),
                 125000 => msg.token_num == String::from("b"),
                 _ => false,
             },
@@ -139,18 +139,19 @@ where
             extension: msg.extension,
         };
 
-        let token_id: &str = &(1u64).to_string()[..];
-        self.tokens.update(deps.storage, "1", |old| match old {
-            Some(_) => Err(ContractError::Claimed {}),
-            None => Ok(token),
-        })?;
+        let token_id: &str = &(token_minted.count + 1).to_string()[..];
+        self.tokens
+            .update(deps.storage, token_id, |old| match old {
+                Some(_) => Err(ContractError::Claimed {}),
+                None => Ok(token),
+            })?;
 
         self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", &token_minted.to_string()))
+            .add_attribute("token_id", token_id))
     }
 }
 
