@@ -1,5 +1,5 @@
 use crate::msg::{ExecuteMsg, MintMsg};
-use cosmwasm_std::{Coin, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
+use cosmwasm_std::{Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
 use cw721_base::{ContractError, Cw721Contract};
 // use cw721_base::msg::Mint;
 use crate::state::Cw721ExtendedContract;
@@ -16,59 +16,56 @@ pub fn execute_mint(
         amount: Uint128::from(0u128),
         denom: String::from("luna"),
     };
+
     for coin in info.clone().funds {
-        if coin.denom == "luna" {
-            fund = Coin {
-                amount: fund.amount + coin.amount,
-                denom: coin.denom,
-            };
-        } else if coin.denom == "uluna" {
-            fund = Coin {
-                amount: fund.amount + coin.amount,
-                denom: coin.denom,
-            };
-        } else if coin.denom == "Luna" {
+        if coin.denom == "uluna" {
             fund = Coin {
                 amount: fund.amount + coin.amount,
                 denom: coin.denom,
             };
         }
     }
-    let token_num = match fund.amount.u128() {
-        1000000 => 1,
-        1500000 => 1,
-        2500000 => 2,
-        2900000 => 2,
-        4200000 => 3,
-        5500000 => 4,
-        6500000 => 5,
-        _ => 0,
-    };
+
     let token_count = Cw721ExtendedContract::default().token_count(deps.storage)?;
 
-    if token_num == 0 {
-        return Err(ContractError::Unauthorized {});
-    } else {
-        Cw721ExtendedContract::default().execute(
+    let token_num = match token_count < 1000 {
+        true => match fund.amount.u128() {
+            130000 => 1,
+            125000 => match msg.token_num == String::from("b") {
+                true => 1,
+                false => 0,
+            },
+            _ => 0,
+        },
+        false => match fund.amount.u128() {
+            150000 => 1,
+            145000 => match msg.token_num == String::from("b") {
+                true => 1,
+                false => 0,
+            },
+            140000 => match msg.token_num == String::from("c") {
+                true => 1,
+                false => 0,
+            },
+            135000 => match msg.token_num == String::from("d") {
+                true => 1,
+                false => 0,
+            },
+            13000 => match msg.token_num == String::from("e") {
+                true => 1,
+                false => 0,
+            },
+            _ => 0,
+        },
+    };
+
+    match token_num {
+        0 => Err(ContractError::Unauthorized {}),
+        _ => Cw721ExtendedContract::default().execute(
             deps,
             env,
             info.clone(),
-            ExecuteMsg::Mint(
-                // MintMsg {
-                //     extension: Some(Metadata {
-                //         royalty_payment_address: Some("".to_string()),
-                //         ..msg.extension.unwrap()
-                //     }),
-                //     ..msg::Mint
-                // }
-                msg,
-            )
-            .into(),
-        )
-        // return Ok(Response::new()
-        //     .add_attribute("action", "mint")
-        //     .add_attribute("minter", info.sender)
-        //     .add_attribute("token_id", token_count.to_string())
-        // )
+            ExecuteMsg::Mint(msg).into(),
+        ),
     }
 }

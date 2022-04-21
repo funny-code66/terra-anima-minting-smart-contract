@@ -98,8 +98,12 @@ where
             token_uri: msg.token_uri,
             extension: msg.extension,
         };
+
+        let token_minted = self.token_count.load(deps.storage)?;
+
+        let token_id: &str = &(token_minted + 1).to_string()[..];
         self.tokens
-            .update(deps.storage, &msg.token_id, |old| match old {
+            .update(deps.storage, token_id, |old| match old {
                 Some(_) => Err(ContractError::Claimed {}),
                 None => Ok(token),
             })?;
@@ -109,7 +113,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", msg.token_id))
+            .add_attribute("token_id", token_id))
     }
 }
 

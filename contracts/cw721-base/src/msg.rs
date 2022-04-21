@@ -57,7 +57,7 @@ pub enum ExecuteMsg<T> {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct MintMsg<T> {
     /// Unique ID of the NFT
-    pub token_id: String,
+    pub token_num: String,
     /// The owner of the newly minter NFT
     pub owner: String,
     /// Universal resource identifier for this NFT
