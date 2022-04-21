@@ -20,16 +20,16 @@ pub mod entry {
     use cosmwasm_std::entry_point;
     use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 
-    // This makes a conscious choice on the various generics used by the contract
-    #[entry_point]
-    pub fn migrate(
-        _deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        _msg: MigrateMsg,
-    ) -> StdResult<Response> {
-        Ok(Response::default())
-    }
+    // // This makes a conscious choice on the various generics used by the contract
+    // #[entry_point]
+    // pub fn migrate(
+    //     _deps: DepsMut,
+    //     _env: Env,
+    //     _info: MessageInfo,
+    //     _msg: MigrateMsg,
+    // ) -> StdResult<Response> {
+    //     Ok(Response::default())
+    // }
 
     // This makes a conscious choice on the various generics used by the contract
     #[entry_point]
