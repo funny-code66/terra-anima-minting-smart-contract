@@ -77,6 +77,10 @@ jobs:
         run: |
           npm i -g @terra-money/terrain
 
+      - name: build cw721-base
+        run: |
+          terrain deploy cw721-base --signer custom_tester_1 --network testnet
+
       - name: deploy to testnet
         run: |
           terrain deploy cw721-royalty --signer custom_tester_1 --network testnet --set-signer-as-admin
