@@ -105,25 +105,25 @@ where
             .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
         // let token_minted = self.token_count.load(deps.storage)?;
 
-        // let can_mint = match token_minted < 1000 {
-        //     true => match fund.amount.u128() {
-        //         130000 => true,
-        //         125000 => msg.token_num == String::from("b"),
-        //         _ => false,
-        //     },
-        //     false => match fund.amount.u128() {
-        //         150000 => true,
-        //         145000 => msg.token_num == String::from("b"),
-        //         140000 => msg.token_num == String::from("c"),
-        //         135000 => msg.token_num == String::from("d"),
-        //         13000 => msg.token_num == String::from("e"),
-        //         _ => false,
-        //     },
-        // };
+        let can_mint = match token_minted < 1000 {
+            true => match fund.amount.u128() {
+                130000 => true,
+                125000 => msg.token_num == String::from("b"),
+                _ => false,
+            },
+            false => match fund.amount.u128() {
+                150000 => true,
+                145000 => msg.token_num == String::from("b"),
+                140000 => msg.token_num == String::from("c"),
+                135000 => msg.token_num == String::from("d"),
+                13000 => msg.token_num == String::from("e"),
+                _ => false,
+            },
+        };
 
-        // if !can_mint {
-        //     return Err(ContractError::Unauthorized {});
-        // };
+        if !can_mint {
+            return Err(ContractError::Unauthorized {});
+        };
 
         // let minter = self.minter.load(deps.storage)?;
 
