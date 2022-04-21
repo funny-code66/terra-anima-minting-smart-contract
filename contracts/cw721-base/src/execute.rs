@@ -46,7 +46,10 @@ where
         msg: ExecuteMsg<T>,
     ) -> Result<Response<C>, ContractError> {
         match msg {
-            ExecuteMsg::Mint(msg) => self.mint(deps, env, info, msg),
+            ExecuteMsg::Mint(msg) => Ok(Response::new()
+                .add_attribute("action", "mint")
+                .add_attribute("minter", info.sender)
+                .add_attribute("token_id", "1")),
             ExecuteMsg::Approve {
                 spender,
                 token_id,
@@ -85,21 +88,21 @@ where
         info: MessageInfo,
         msg: MintMsg<T>,
     ) -> Result<Response<C>, ContractError> {
-        let mut fund = Coin {
-            amount: Uint128::from(0u128),
-            denom: String::from("luna"),
-        };
+        // let mut fund = Coin {
+        //     amount: Uint128::from(0u128),
+        //     denom: String::from("luna"),
+        // };
 
-        for coin in info.clone().funds {
-            if coin.denom == "uluna" {
-                fund = Coin {
-                    amount: fund.amount + coin.amount,
-                    denom: coin.denom,
-                };
-            }
-        }
+        // for coin in info.clone().funds {
+        //     if coin.denom == "uluna" {
+        //         fund = Coin {
+        //             amount: fund.amount + coin.amount,
+        //             denom: coin.denom,
+        //         };
+        //     }
+        // }
 
-        let token_minted = self.token_count.load(deps.storage)?;
+        // let token_minted = self.token_count.load(deps.storage)?;
 
         // let can_mint = match token_minted < 1000 {
         //     true => match fund.amount.u128() {
@@ -128,20 +131,20 @@ where
         // }
 
         // create the token
-        let token = TokenInfo {
-            owner: deps.api.addr_validate(&msg.owner)?,
-            approvals: vec![],
-            token_uri: msg.token_uri,
-            extension: msg.extension,
-        };
+        // let token = TokenInfo {
+        //     owner: deps.api.addr_validate(&msg.owner)?,
+        //     approvals: vec![],
+        //     token_uri: msg.token_uri,
+        //     extension: msg.extension,
+        // };
 
-        // let token_id: &str = &(token_minted + 1).to_string()[..];
-        self.tokens.update(deps.storage, "1", |old| match old {
-            Some(_) => Err(ContractError::Claimed {}),
-            None => Ok(token),
-        })?;
+        // // let token_id: &str = &(token_minted + 1).to_string()[..];
+        // self.tokens.update(deps.storage, "1", |old| match old {
+        //     Some(_) => Err(ContractError::Claimed {}),
+        //     None => Ok(token),
+        // })?;
 
-        self.increment_tokens(deps.storage)?;
+        // self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
             .add_attribute("action", "mint")

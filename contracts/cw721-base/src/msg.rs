@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 use cosmwasm_std::{Binary, Uint128};
 use cw721::Expiration;
 
+// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+// pub struct MigrateMsg {}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
     /// Name of the NFT contract
@@ -126,7 +129,7 @@ pub enum QueryMsg {
 
     // Return the minter
     Minter {},
-    
+
     // Check if NFT tokenURI is revealed
     IsOnReveal {},
 
@@ -147,7 +150,6 @@ pub enum QueryMsg {
 pub struct MinterResponse {
     pub minter: String,
 }
-
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct RoyaltiesInfoResponse {

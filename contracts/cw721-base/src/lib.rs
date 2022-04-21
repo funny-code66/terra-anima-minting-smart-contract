@@ -8,7 +8,7 @@ pub mod state;
 mod traits;
 
 pub use crate::error::ContractError;
-pub use crate::msg::{ExecuteMsg, InstantiateMsg, MintMsg, MinterResponse, QueryMsg};
+pub use crate::msg::*;
 pub use crate::state::*;
 
 // This is a simple type to let us handle empty extensions
@@ -19,6 +19,17 @@ pub mod entry {
 
     use cosmwasm_std::entry_point;
     use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+
+    // This makes a conscious choice on the various generics used by the contract
+    #[entry_point]
+    pub fn migrate(
+        _deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+        _msg: MigrateMsg,
+    ) -> StdResult<Response> {
+        Ok(Response::default())
+    }
 
     // This makes a conscious choice on the various generics used by the contract
     #[entry_point]
