@@ -30,6 +30,12 @@ impl<'a> Cw721ExtendedContract<'a> {
     ) -> Result<Response, ContractError> {
         match msg {
             ExecuteMsg::Withdraw {} => self.execute_withdraw(deps, env, info),
+            ExecuteMsg::SetBaseUri { base_uri } => {
+                self.execute_set_base_uri(deps, env, info, base_uri)
+            }
+            ExecuteMsg::SetArtReveal { art_reveal } => {
+                self.execute_set_art_reveal(deps, env, info, art_reveal)
+            }
             _ => Cw721ExtendedContract::default()._execute(deps, env, info, msg),
         }
     }
