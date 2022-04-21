@@ -44,6 +44,9 @@ where
     /// Stored as (granter, operator) giving operator full control over granter's account
     pub operators: Map<'a, (&'a Addr, &'a Addr), Expiration>,
     pub tokens: IndexedMap<'a, &'a str, TokenInfo<T>, TokenIndexes<'a, T>>,
+    pub is_on_reveal: Item<'a, bool>,
+    pub base_uri: Item<'a, String>,
+    // pub cw3_signature: Map<'a, &'a Addr, bool>,
 
     pub(crate) _custom_response: PhantomData<C>,
 }
@@ -94,6 +97,8 @@ where
             operators: Map::new(operator_key),
             tokens: IndexedMap::new(tokens_key, indexes),
             _custom_response: PhantomData,
+            is_on_reveal: Item::new("true"),
+            base_uri: Item::new("ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/"),
         }
     }
 

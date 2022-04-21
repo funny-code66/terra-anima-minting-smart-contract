@@ -59,17 +59,21 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         })
     }
 
-    fn query_is_on_reveal(&self, _deps: Deps) -> StdResult<IsOnRevealResponse> {
-        Ok(IsOnRevealResponse { is_on_reveal: true })
+    fn query_is_on_reveal(&self, deps: Deps) -> StdResult<IsOnRevealResponse> {
+        let res = self.is_on_reveal.load(deps.storage)?;
+
+        Ok(IsOnRevealResponse { is_on_reveal: res })
     }
 
-    fn query_get_token_uri(
-        &self,
-        _deps: Deps,
-        _token_id: String,
-    ) -> StdResult<GetTokenUriResponse> {
-        Ok(GetTokenUriResponse {
-            token_uri: String::from("NOT_YET_REVEALED"),
-        })
+    fn query_get_token_uri(&self, deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
+        let base_uri = self.base_uri.load(deps.storage)?;
+        let is_on_reveal = self.is_on_reveal.load(deps.storage)?;
+
+        let res = match is_on_reveal {
+            true => format!("{}{}.json", base_uri, token_id),
+            false => String::from("NOT_YET_REVEALED"),
+        };
+
+        Ok(GetTokenUriResponse { token_uri: res })
     }
 }
