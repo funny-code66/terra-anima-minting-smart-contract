@@ -79,6 +79,34 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         }));
         Ok(Response::new().add_messages(messages))
     }
+
+    fn execute_set_base_uri(
+        &self,
+        deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+        _uri: String,
+    ) -> Result<Response, ContractError> {
+        self.base_uri.save(deps.storage, &_uri)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "set_base_uri")
+            .add_attribute("base_uri", &_uri))
+    }
+
+    fn execute_set_art_reveal(
+        &self,
+        deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+        art_reveal: bool,
+    ) -> Result<Response, ContractError> {
+        self.is_on_reveal.save(deps.storage, &art_reveal)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "set_art_reveal")
+            .add_attribute("base_uri", &art_reveal.to_string()))
+    }
 }
 
 // helpers

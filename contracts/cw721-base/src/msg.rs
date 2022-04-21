@@ -69,6 +69,16 @@ pub enum ExecuteMsg<T> {
 
     // Withdraw coin to team, pro, treas.
     Withdraw {},
+
+    // Set base URI
+    SetBaseUri {
+        base_uri: String,
+    },
+
+    // Set Art reveal.
+    SetArtReveal {
+        art_reveal: bool,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

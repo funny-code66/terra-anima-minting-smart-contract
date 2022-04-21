@@ -29,6 +29,22 @@ where
         _env: Env,
         _info: MessageInfo,
     ) -> Result<Response, ContractError>;
+
+    fn execute_set_base_uri(
+        &self,
+        _deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+        base_uri: String,
+    ) -> Result<Response, ContractError>;
+
+    fn execute_set_art_reveal(
+        &self,
+        _deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+        art_reveal: bool,
+    ) -> Result<Response, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>
