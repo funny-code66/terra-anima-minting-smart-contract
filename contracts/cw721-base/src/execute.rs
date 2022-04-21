@@ -85,21 +85,21 @@ where
         info: MessageInfo,
         msg: MintMsg<T>,
     ) -> Result<Response<C>, ContractError> {
-        // let mut fund = Coin {
-        //     amount: Uint128::from(0u128),
-        //     denom: String::from("luna"),
-        // };
+        let mut fund = Coin {
+            amount: Uint128::from(0u128),
+            denom: String::from("luna"),
+        };
 
-        // for coin in info.clone().funds {
-        //     if coin.denom == "uluna" {
-        //         fund = Coin {
-        //             amount: fund.amount + coin.amount,
-        //             denom: coin.denom,
-        //         };
-        //     }
-        // }
+        for coin in info.clone().funds {
+            if coin.denom == "uluna" {
+                fund = Coin {
+                    amount: fund.amount + coin.amount,
+                    denom: coin.denom,
+                };
+            }
+        }
 
-        // let token_minted = self.token_count.load(deps.storage)?;
+        let token_minted = self.token_count.load(deps.storage)?;
 
         // let can_mint = match token_minted < 1000 {
         //     true => match fund.amount.u128() {
@@ -146,7 +146,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", "1"))
+            .add_attribute("token_id", &token_minted.to_string()))
     }
 }
 
