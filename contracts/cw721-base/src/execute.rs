@@ -36,11 +36,18 @@ where
         };
         self.contract_info.save(deps.storage, &info)?;
         let minter = deps.api.addr_validate(&msg.minter)?;
+        let team = deps.api.addr_validate(&msg.team)?;
+        let pro = deps.api.addr_validate(&msg.pro)?;
+        let treas = deps.api.addr_validate(&msg.treas)?;
+
         self.minter.save(deps.storage, &minter)?;
+        self.team.save(deps.storage, &team)?;
+        self.pro.save(deps.storage, &pro)?;
+        self.treas.save(deps.storage, &treas)?;
         Ok(Response::default())
     }
 
-    pub fn execute(
+    pub fn _execute(
         &self,
         deps: DepsMut,
         env: Env,
@@ -70,6 +77,7 @@ where
                 token_id,
                 msg,
             } => self.send_nft(deps, env, info, contract, token_id, msg),
+            _ => panic!("Cannot recognize execute request"),
         }
     }
 }

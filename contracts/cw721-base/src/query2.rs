@@ -60,14 +60,20 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
     }
 
     fn query_is_on_reveal(&self, deps: Deps) -> StdResult<IsOnRevealResponse> {
-        let res = self.is_on_reveal.load(deps.storage)?;
+        let res: bool = self
+            .is_on_reveal
+            .may_load(deps.storage)?
+            .unwrap_or_default();
 
         Ok(IsOnRevealResponse { is_on_reveal: res })
     }
 
     fn query_get_token_uri(&self, deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
-        let base_uri = self.base_uri.load(deps.storage)?;
-        let is_on_reveal = self.is_on_reveal.load(deps.storage)?;
+        let base_uri: String = self.base_uri.may_load(deps.storage)?.unwrap_or_default();
+        let is_on_reveal = self
+            .is_on_reveal
+            .may_load(deps.storage)?
+            .unwrap_or_default();
 
         let res = match is_on_reveal {
             true => format!("{}{}.json", base_uri, token_id),

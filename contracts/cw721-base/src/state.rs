@@ -40,13 +40,16 @@ where
 {
     pub contract_info: Item<'a, ContractInfoResponse>,
     pub minter: Item<'a, Addr>,
+    pub team: Item<'a, Addr>,
+    pub pro: Item<'a, Addr>,
+    pub treas: Item<'a, Addr>,
     pub token_count: Item<'a, u64>,
     /// Stored as (granter, operator) giving operator full control over granter's account
     pub operators: Map<'a, (&'a Addr, &'a Addr), Expiration>,
     pub tokens: IndexedMap<'a, &'a str, TokenInfo<T>, TokenIndexes<'a, T>>,
     pub is_on_reveal: Item<'a, bool>,
     pub base_uri: Item<'a, String>,
-    // pub cw3_signature: Map<'a, &'a Addr, bool>,
+    pub cw3_signature: Map<'a, &'a Addr, bool>,
 
     pub(crate) _custom_response: PhantomData<C>,
 }
@@ -67,6 +70,9 @@ where
         Self::new(
             "nft_info",
             "minter",
+            "team",
+            "pro",
+            "treas",
             "num_tokens",
             "operators",
             "tokens",
@@ -82,6 +88,9 @@ where
     fn new(
         contract_key: &'a str,
         minter_key: &'a str,
+        team_key: &'a str,
+        pro_key: &'a str,
+        treas_key: &'a str,
         token_count_key: &'a str,
         operator_key: &'a str,
         tokens_key: &'a str,
@@ -93,6 +102,10 @@ where
         Self {
             contract_info: Item::new(contract_key),
             minter: Item::new(minter_key),
+            team: Item::new(team_key),
+            pro: Item::new(pro_key),
+            treas: Item::new(treas_key),
+            cw3_signature: Map::new(""),
             token_count: Item::new(token_count_key),
             operators: Map::new(operator_key),
             tokens: IndexedMap::new(tokens_key, indexes),

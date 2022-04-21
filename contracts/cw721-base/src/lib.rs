@@ -1,6 +1,7 @@
 mod contract_tests;
 mod error;
 mod execute;
+mod execute2;
 pub mod msg;
 mod query;
 mod query2;

@@ -2,7 +2,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use cosmwasm_std::{Binary, Uint128};
-use cw721::Expiration;
+use cw721::{CustomMsg, Expiration};
 
 // #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 // pub struct MigrateMsg {}
@@ -18,6 +18,9 @@ pub struct InstantiateMsg {
     /// This is designed for a base NFT that is controlled by an external program
     /// or contract. You will likely replace this with custom logic in custom NFTs
     pub minter: String,
+    pub team: String,
+    pub pro: String,
+    pub treas: String,
 }
 
 /// This is like Cw721ExecuteMsg but we add a Mint command for an owner
@@ -27,7 +30,10 @@ pub struct InstantiateMsg {
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg<T> {
     /// Transfer is a base message to move a token to another account without triggering actions
-    TransferNft { recipient: String, token_id: String },
+    TransferNft {
+        recipient: String,
+        token_id: String,
+    },
     /// Send is a base message to transfer a token to a contract and trigger an action
     /// on the receiving contract.
     SendNft {
@@ -43,7 +49,10 @@ pub enum ExecuteMsg<T> {
         expires: Option<Expiration>,
     },
     /// Remove previously granted Approval
-    Revoke { spender: String, token_id: String },
+    Revoke {
+        spender: String,
+        token_id: String,
+    },
     /// Allows operator to transfer / send any token from the owner's account.
     /// If expiration is set, then this allowance has a time/height limit
     ApproveAll {
@@ -51,10 +60,15 @@ pub enum ExecuteMsg<T> {
         expires: Option<Expiration>,
     },
     /// Remove previously granted ApproveAll permission
-    RevokeAll { operator: String },
+    RevokeAll {
+        operator: String,
+    },
 
     /// Mint a new NFT, can only be called by the contract minter
     Mint(MintMsg<T>),
+
+    // Withdraw coin to team, pro, treas.
+    Withdraw {},
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -144,6 +158,10 @@ pub enum QueryMsg {
     },
     CheckRoyalties {},
 }
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct MyMsg {}
+impl CustomMsg for MyMsg {}
 
 /// Shows who can mint these tokens
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]

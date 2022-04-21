@@ -2,6 +2,7 @@ use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use crate::error::*;
 use crate::msg::*;
 use cosmwasm_std::{Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult, Uint128};
 use cw0::Expiration;
@@ -11,19 +12,23 @@ pub trait CustomMsg: Clone + std::fmt::Debug + PartialEq + JsonSchema {}
 
 impl CustomMsg for Empty {}
 
-pub trait Cw721Extended<T, C>: Cw721ExtendedExecute<T, C> + Cw721ExtendedQuery<T>
+pub trait Cw721Extended<T, C>: Cw721ExtendedExecute<T> + Cw721ExtendedQuery<T>
 where
     T: Serialize + DeserializeOwned + Clone,
     C: CustomMsg,
 {
 }
 
-pub trait Cw721ExtendedExecute<T, C>
+pub trait Cw721ExtendedExecute<T>
 where
     T: Serialize + DeserializeOwned + Clone,
-    C: CustomMsg,
 {
-    type Err: ToString;
+    fn execute_withdraw(
+        &self,
+        _deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+    ) -> Result<Response, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>
