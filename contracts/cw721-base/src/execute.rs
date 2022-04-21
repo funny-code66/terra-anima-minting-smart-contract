@@ -105,7 +105,7 @@ where
             .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
         // let token_minted = self.token_count.load(deps.storage)?;
 
-        let can_mint = match token_minted < 1000 {
+        let can_mint = match token_minted.count < 1000 {
             true => match fund.amount.u128() {
                 130000 => true,
                 125000 => msg.token_num == String::from("b"),
