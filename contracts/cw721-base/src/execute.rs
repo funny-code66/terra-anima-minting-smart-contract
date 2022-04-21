@@ -46,10 +46,7 @@ where
         msg: ExecuteMsg<T>,
     ) -> Result<Response<C>, ContractError> {
         match msg {
-            ExecuteMsg::Mint(msg) => Ok(Response::new()
-                .add_attribute("action", "mint")
-                .add_attribute("minter", info.sender)
-                .add_attribute("token_id", "1")),
+            ExecuteMsg::Mint(msg) => self.mint(deps, env, info, msg),
             ExecuteMsg::Approve {
                 spender,
                 token_id,
