@@ -80,6 +80,8 @@ jobs:
       - name: build cw721-base
         run: |
           terrain deploy cw721-base --signer custom_tester_1 --network testnet
+          cd contracts/cw721-base/
+          cargo build
 
       - name: deploy to testnet
         run: |
