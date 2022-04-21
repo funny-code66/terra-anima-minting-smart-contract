@@ -86,7 +86,7 @@ jobs:
 
       - name: deploy to testnet
         run: |
-          terrain deploy cw721-royalty --signer custom_tester_1 --network testnet --set-signer-as-admin
+          terrain deploy cw721-base --signer custom_tester_1 --network testnet --set-signer-as-admin
           terrain sync-refs
 
   test:
