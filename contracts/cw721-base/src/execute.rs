@@ -99,7 +99,7 @@ where
             }
         }
 
-        let token_minted = self.token_count.load(deps.storage)?;
+        // let token_minted = self.token_count.load(deps.storage)?;
 
         // let can_mint = match token_minted < 1000 {
         //     true => match fund.amount.u128() {
@@ -135,7 +135,7 @@ where
             extension: msg.extension,
         };
 
-        let token_id: &str = &(token_minted + 1).to_string()[..];
+        let token_id: &str = &(1u64).to_string()[..];
         self.tokens.update(deps.storage, "1", |old| match old {
             Some(_) => Err(ContractError::Claimed {}),
             None => Ok(token),
@@ -146,7 +146,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", &token_minted.to_string()))
+            .add_attribute("token_id", token_id))
     }
 }
 
