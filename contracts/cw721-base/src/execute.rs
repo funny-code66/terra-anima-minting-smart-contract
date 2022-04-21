@@ -1,7 +1,7 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
 
 use cw2::set_contract_version;
 use cw721::{ContractInfoResponse, CustomMsg, Cw721Execute, Cw721ReceiveMsg, Expiration};
@@ -85,11 +85,47 @@ where
         info: MessageInfo,
         msg: MintMsg<T>,
     ) -> Result<Response<C>, ContractError> {
-        let minter = self.minter.load(deps.storage)?;
+        let mut fund = Coin {
+            amount: Uint128::from(0u128),
+            denom: String::from("luna"),
+        };
 
-        if info.sender != minter {
-            return Err(ContractError::Unauthorized {});
+        for coin in info.clone().funds {
+            if coin.denom == "uluna" {
+                fund = Coin {
+                    amount: fund.amount + coin.amount,
+                    denom: coin.denom,
+                };
+            }
         }
+
+        let token_minted = self.token_count.load(deps.storage)?;
+
+        // let can_mint = match token_minted < 1000 {
+        //     true => match fund.amount.u128() {
+        //         130000 => true,
+        //         125000 => msg.token_num == String::from("b"),
+        //         _ => false,
+        //     },
+        //     false => match fund.amount.u128() {
+        //         150000 => true,
+        //         145000 => msg.token_num == String::from("b"),
+        //         140000 => msg.token_num == String::from("c"),
+        //         135000 => msg.token_num == String::from("d"),
+        //         13000 => msg.token_num == String::from("e"),
+        //         _ => false,
+        //     },
+        // };
+
+        // if !can_mint {
+        //     return Err(ContractError::Unauthorized {});
+        // };
+
+        // let minter = self.minter.load(deps.storage)?;
+
+        // if info.sender != minter {
+        //     return Err(ContractError::Unauthorized {});
+        // }
 
         // create the token
         let token = TokenInfo {
@@ -99,21 +135,18 @@ where
             extension: msg.extension,
         };
 
-        let token_minted = self.token_count.load(deps.storage)?;
-
-        let token_id: &str = &(token_minted + 1).to_string()[..];
-        self.tokens
-            .update(deps.storage, token_id, |old| match old {
-                Some(_) => Err(ContractError::Claimed {}),
-                None => Ok(token),
-            })?;
+        // let token_id: &str = &(token_minted + 1).to_string()[..];
+        self.tokens.update(deps.storage, "1", |old| match old {
+            Some(_) => Err(ContractError::Claimed {}),
+            None => Ok(token),
+        })?;
 
         self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", token_id))
+            .add_attribute("token_id", "1"))
     }
 }
 
