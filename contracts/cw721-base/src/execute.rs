@@ -100,12 +100,12 @@ where
                 };
             }
         }
-        let token_minted: NumTokensResponse = deps
-            .querier
-            .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
-        // let token_minted = self.token_count.load(deps.storage)?;
+        // let token_minted: NumTokensResponse = deps
+        //     .querier
+        //     .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
+        let token_minted: u64 = self.token_count.load(deps.storage)?;
 
-        let can_mint = match token_minted.count < 1000 {
+        let can_mint = match token_minted < 1000 {
             true => match fund.amount.u128() {
                 130000 => true,
                 125000 => msg.token_num == String::from("b"),
@@ -150,7 +150,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", &token_minted.count.to_string()))
+            .add_attribute("token_id", &token_minted.to_string()))
     }
 }
 
