@@ -4,11 +4,13 @@ use serde::Serialize;
 use cosmwasm_std::{Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
 
 use cw2::set_contract_version;
-use cw721::{ContractInfoResponse, CustomMsg, Cw721Execute, Cw721ReceiveMsg, Expiration};
+use cw721::{
+    ContractInfoResponse, CustomMsg, Cw721Execute, Cw721ReceiveMsg, Expiration, NumTokensResponse,
+};
 
 use crate::error::ContractError;
-use crate::msg::{ExecuteMsg, InstantiateMsg, MintMsg};
-use crate::state::{Approval, Cw721Contract, TokenInfo};
+use crate::msg::*;
+use crate::state::*;
 
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw721-base";
@@ -81,7 +83,7 @@ where
     pub fn mint(
         &self,
         deps: DepsMut,
-        _env: Env,
+        env: Env,
         info: MessageInfo,
         msg: MintMsg<T>,
     ) -> Result<Response<C>, ContractError> {
@@ -98,7 +100,9 @@ where
                 };
             }
         }
-
+        let token_minted: NumTokensResponse = deps
+            .querier
+            .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
         // let token_minted = self.token_count.load(deps.storage)?;
 
         // let can_mint = match token_minted < 1000 {
@@ -146,7 +150,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
-            .add_attribute("token_id", token_id))
+            .add_attribute("token_id", token_minted))
     }
 }
 
