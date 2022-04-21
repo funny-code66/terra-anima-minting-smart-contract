@@ -128,20 +128,20 @@ where
         // }
 
         // create the token
-        // let token = TokenInfo {
-        //     owner: deps.api.addr_validate(&msg.owner)?,
-        //     approvals: vec![],
-        //     token_uri: msg.token_uri,
-        //     extension: msg.extension,
-        // };
+        let token = TokenInfo {
+            owner: deps.api.addr_validate(&msg.owner)?,
+            approvals: vec![],
+            token_uri: msg.token_uri,
+            extension: msg.extension,
+        };
 
-        // // let token_id: &str = &(token_minted + 1).to_string()[..];
-        // self.tokens.update(deps.storage, "1", |old| match old {
-        //     Some(_) => Err(ContractError::Claimed {}),
-        //     None => Ok(token),
-        // })?;
+        let token_id: &str = &(token_minted + 1).to_string()[..];
+        self.tokens.update(deps.storage, "1", |old| match old {
+            Some(_) => Err(ContractError::Claimed {}),
+            None => Ok(token),
+        })?;
 
-        // self.increment_tokens(deps.storage)?;
+        self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
             .add_attribute("action", "mint")
