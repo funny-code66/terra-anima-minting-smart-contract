@@ -1,14 +1,14 @@
+use crate::execute::*;
+use crate::msg::*;
+use crate::query::*;
+use crate::state::*;
 use cw721_base::ContractError;
-use crate::msg::{InstantiateMsg, ExecuteMsg, MintMsg, MinterResponse, QueryMsg};
-use crate::state::{Trait, Metadata, Extension, Cw721ExtendedContract};
-use crate::query::{ check_royalties, query_royalties_info };
-use crate::execute::execute_mint;
 
 #[cfg(not(feature = "library"))]
 pub mod entry {
     use super::*;
 
-    use cosmwasm_std::{ entry_point, to_binary };
+    use cosmwasm_std::{entry_point, to_binary};
     use cosmwasm_std::{Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 
     // This is a simple type to let us handle empty extensions
@@ -46,11 +46,12 @@ pub mod entry {
                 sale_price,
             } => to_binary(&query_royalties_info(deps, token_id, sale_price)?),
             QueryMsg::CheckRoyalties {} => to_binary(&check_royalties(deps)?),
-            _ => Cw721ExtendedContract::default().query(deps, env, msg.into())
+            QueryMsg::IsOnReveal {} => to_binary(&query_is_on_reveal(deps)?),
+            QueryMsg::GetTokenUri { token_id } => to_binary(&query_get_token_uri(deps, token_id)?),
+            _ => Cw721ExtendedContract::default().query(deps, env, msg.into()),
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

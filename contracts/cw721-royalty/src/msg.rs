@@ -1,10 +1,12 @@
-use cosmwasm_std::{ Binary, Uint128};
+use cosmwasm_std::{Binary, Uint128};
+use cw721::Expiration;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use cw721::Expiration;
 
 use crate::state::Extension;
-pub use cw721_base::{ContractError, InstantiateMsg, MintMsg, MinterResponse, QueryMsg as Cw721QueryMsg};
+pub use cw721_base::{
+    ContractError, InstantiateMsg, MintMsg, MinterResponse, QueryMsg as Cw721QueryMsg,
+};
 
 pub type Cw721ExecuteMsg = cw721_base::ExecuteMsg<Extension>;
 
@@ -39,7 +41,7 @@ pub enum ExecuteMsg {
     RevokeAll { operator: String },
 
     /// Mint a new NFT, can only be called by the contract minter
-    Mint(MintMsg<Extension>)
+    Mint(MintMsg<Extension>),
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
@@ -62,7 +64,9 @@ pub enum QueryMsg {
     },
     NumTokens {},
     ContractInfo {},
-    NftInfo { token_id: String },
+    NftInfo {
+        token_id: String,
+    },
     AllNftInfo {
         token_id: String,
         include_expired: Option<bool>,
@@ -76,16 +80,25 @@ pub enum QueryMsg {
         start_after: Option<String>,
         limit: Option<u32>,
     },
+    IsOnReveal {},
+    GetTokenUri {
+        token_id: String,
+    },
 }
 
 impl From<ExecuteMsg> for Cw721ExecuteMsg {
-    fn from (msg: ExecuteMsg) -> Cw721ExecuteMsg {
+    fn from(msg: ExecuteMsg) -> Cw721ExecuteMsg {
         match msg {
             // Transfer is a base message to move a token to another account without triggering actions
             ExecuteMsg::Mint(msg) => Cw721ExecuteMsg::Mint(msg),
-            ExecuteMsg::TransferNft { recipient, token_id } =>
-            Cw721ExecuteMsg::TransferNft { recipient, token_id },
-            
+            ExecuteMsg::TransferNft {
+                recipient,
+                token_id,
+            } => Cw721ExecuteMsg::TransferNft {
+                recipient,
+                token_id,
+            },
+
             // Send is a base message to transfer a token to a contract and trigger an action
             // on the receiving contract.
             ExecuteMsg::SendNft {
@@ -109,31 +122,27 @@ impl From<ExecuteMsg> for Cw721ExecuteMsg {
                 expires,
             },
             // Remove previously granted Approval
-            ExecuteMsg::Revoke { spender, token_id } =>
-            Cw721ExecuteMsg::Revoke { spender, token_id },
+            ExecuteMsg::Revoke { spender, token_id } => {
+                Cw721ExecuteMsg::Revoke { spender, token_id }
+            }
             // Allows operator to transfer / send any token from the owner's account.
             // If expiration is set, then this allowance has a time/height limit
-            ExecuteMsg::ApproveAll {
-                operator,
-                expires,
-            } => Cw721ExecuteMsg::ApproveAll {
-                operator,
-                expires,
-            },
+            ExecuteMsg::ApproveAll { operator, expires } => {
+                Cw721ExecuteMsg::ApproveAll { operator, expires }
+            }
             // Remove previously granted ApproveAll permission
-            ExecuteMsg::RevokeAll { operator } =>
-            Cw721ExecuteMsg::RevokeAll { operator },
+            ExecuteMsg::RevokeAll { operator } => Cw721ExecuteMsg::RevokeAll { operator },
         }
     }
 }
 
 impl From<QueryMsg> for Cw721QueryMsg {
-    fn from (msg: QueryMsg) -> Cw721QueryMsg {
+    fn from(msg: QueryMsg) -> Cw721QueryMsg {
         match msg {
             QueryMsg::OwnerOf {
                 token_id,
                 include_expired,
-            } => Cw721QueryMsg:: OwnerOf {
+            } => Cw721QueryMsg::OwnerOf {
                 token_id,
                 include_expired,
             },
@@ -158,7 +167,7 @@ impl From<QueryMsg> for Cw721QueryMsg {
                 token_id,
                 include_expired,
             },
-            QueryMsg::Tokens{
+            QueryMsg::Tokens {
                 owner,
                 start_after,
                 limit,
@@ -169,7 +178,7 @@ impl From<QueryMsg> for Cw721QueryMsg {
             },
             QueryMsg::AllTokens { start_after, limit } => {
                 Cw721QueryMsg::AllTokens { start_after, limit }
-            },
+            }
             _ => panic!("cannot convert {:?} to Cw721QueryMsg", msg),
         }
     }
@@ -184,4 +193,14 @@ pub struct RoyaltiesInfoResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct CheckRoyaltiesResponse {
     pub royalty_payments: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct IsOnRevealResponse {
+    pub is_on_reveal: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct GetTokenUriResponse {
+    pub token_uri: String,
 }

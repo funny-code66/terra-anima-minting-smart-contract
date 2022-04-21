@@ -1,6 +1,6 @@
-use crate::msg::{CheckRoyaltiesResponse, RoyaltiesInfoResponse};
+use crate::msg::*;
 use crate::state::Cw721ExtendedContract;
-use cosmwasm_std::{ Decimal, Deps, StdResult, Uint128};
+use cosmwasm_std::{Decimal, Deps, StdResult, Uint128};
 
 pub fn query_royalties_info(
     deps: Deps,
@@ -34,7 +34,17 @@ pub fn query_royalties_info(
 }
 
 pub fn check_royalties(_deps: Deps) -> StdResult<CheckRoyaltiesResponse> {
-    Ok(CheckRoyaltiesResponse{
-        royalty_payments: true
+    Ok(CheckRoyaltiesResponse {
+        royalty_payments: true,
+    })
+}
+
+pub fn query_is_on_reveal(_deps: Deps) -> StdResult<IsOnRevealResponse> {
+    Ok(IsOnRevealResponse { is_on_reveal: true })
+}
+
+pub fn query_get_token_uri(_deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
+    Ok(GetTokenUriResponse {
+        token_uri: String::from("NOT_YET_REVEALED"),
     })
 }

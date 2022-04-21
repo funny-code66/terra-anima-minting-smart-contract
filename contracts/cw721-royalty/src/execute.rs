@@ -1,12 +1,17 @@
-use cosmwasm_std::{Coin, DepsMut, Env, MessageInfo, StdResult, Response, Uint128};
-use crate::msg::{ ExecuteMsg, MintMsg };
-use cw721_base::{Cw721Contract, ContractError};
+use crate::msg::{ExecuteMsg, MintMsg};
+use cosmwasm_std::{Coin, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
+use cw721_base::{ContractError, Cw721Contract};
 // use cw721_base::msg::Mint;
 use crate::state::Cw721ExtendedContract;
 use crate::state::Extension;
 
 pub type Cw721MintMsg = MintMsg<Extension>;
-pub fn execute_mint(deps: DepsMut, env: Env, info: MessageInfo, msg: MintMsg<Extension>) -> Result<Response, ContractError> {
+pub fn execute_mint(
+    deps: DepsMut,
+    env: Env,
+    info: MessageInfo,
+    msg: MintMsg<Extension>,
+) -> Result<Response, ContractError> {
     let mut fund = Coin {
         amount: Uint128::from(0u128),
         denom: String::from("luna"),
@@ -43,18 +48,23 @@ pub fn execute_mint(deps: DepsMut, env: Env, info: MessageInfo, msg: MintMsg<Ext
 
     if token_num == 0 {
         return Err(ContractError::Unauthorized {});
-    }
-    else {
-        Cw721ExtendedContract::default().execute(deps, env, info.clone(), ExecuteMsg::Mint(
-            // MintMsg {
-            //     extension: Some(Metadata {
-            //         royalty_payment_address: Some("".to_string()),
-            //         ..msg.extension.unwrap()
-            //     }),
-            //     ..msg::Mint
-            // }
-            msg,
-        ).into())
+    } else {
+        Cw721ExtendedContract::default().execute(
+            deps,
+            env,
+            info.clone(),
+            ExecuteMsg::Mint(
+                // MintMsg {
+                //     extension: Some(Metadata {
+                //         royalty_payment_address: Some("".to_string()),
+                //         ..msg.extension.unwrap()
+                //     }),
+                //     ..msg::Mint
+                // }
+                msg,
+            )
+            .into(),
+        )
         // return Ok(Response::new()
         //     .add_attribute("action", "mint")
         //     .add_attribute("minter", info.sender)
