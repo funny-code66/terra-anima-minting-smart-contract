@@ -111,11 +111,15 @@ where
         }
         let token_minted: NumTokensResponse = deps
             .querier
-            .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
-        let balance = self
-            .wallet_balance
-            .may_load(deps.storage, &info.sender)?
-            .unwrap_or(0u64);
+            .query_wasm_smart(env.contract.address.clone(), &QueryMsg::NumTokens {})?;
+
+        let balance_response: GetBalanceResponse = deps.querier.query_wasm_smart(
+            env.contract.address,
+            &QueryMsg::GetBalance {
+                owner: info.sender.clone().into_string(),
+            },
+        )?;
+        let balance = balance_response.balance;
 
         let minter = self.minter.load(deps.storage)?;
 
