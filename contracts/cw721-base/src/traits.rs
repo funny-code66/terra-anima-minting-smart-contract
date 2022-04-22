@@ -78,4 +78,6 @@ where
     fn query_is_on_reveal(&self, _deps: Deps) -> StdResult<IsOnRevealResponse>;
 
     fn query_get_token_uri(&self, _deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse>;
+
+    fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse>;
 }

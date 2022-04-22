@@ -1,7 +1,7 @@
 use crate::msg::*;
 use crate::state::*;
 use crate::traits::*;
-use cosmwasm_std::{to_binary, Binary, Decimal, Deps, Env, StdResult, Uint128};
+use cosmwasm_std::{to_binary, Addr, Binary, Decimal, Deps, Env, StdResult, Uint128};
 
 impl<'a> Cw721ExtendedContract<'a> {
     pub fn query(&self, deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
@@ -15,6 +15,7 @@ impl<'a> Cw721ExtendedContract<'a> {
             QueryMsg::GetTokenUri { token_id } => {
                 to_binary(&self.query_get_token_uri(deps, token_id)?)
             }
+            QueryMsg::GetBalance { owner } => to_binary(&self.query_get_balance(deps, owner)?),
             _ => Cw721ExtendedContract::default()._query(deps, env, msg),
         }
     }
@@ -81,5 +82,13 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         };
 
         Ok(GetTokenUriResponse { token_uri: res })
+    }
+
+    fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse> {
+        let res = self
+            .wallet_balance
+            .may_load(deps.storage, &Addr::unchecked(owner))?
+            .unwrap_or_default();
+        Ok(GetBalanceResponse { balance: res })
     }
 }

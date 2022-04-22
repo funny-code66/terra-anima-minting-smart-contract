@@ -176,6 +176,11 @@ pub enum QueryMsg {
         token_id: String,
     },
 
+    // Get wallet balance
+    GetBalance {
+        owner: String,
+    },
+
     RoyaltyInfo {
         token_id: String,
         sale_price: Uint128,
@@ -212,4 +217,9 @@ pub struct IsOnRevealResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct GetTokenUriResponse {
     pub token_uri: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct GetBalanceResponse {
+    pub balance: u64,
 }
