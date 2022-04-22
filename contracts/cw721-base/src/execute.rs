@@ -166,10 +166,7 @@ where
             })?;
 
         self.wallet_balance
-            .update(deps.storage, &info.sender, |old| match old {
-                None => Err(ContractError::Claimed {}),
-                Some(old_balance) => Ok(old_balance + 1),
-            });
+            .save(deps.storage, &info.sender, &(balance + 1))?;
         self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()

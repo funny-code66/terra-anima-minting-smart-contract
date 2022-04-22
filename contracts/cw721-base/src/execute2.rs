@@ -175,7 +175,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             .update(deps.storage, &info.sender, |old| match old {
                 None => Err(ContractError::Claimed {}),
                 Some(old_balance) => Ok(old_balance + 1),
-            });
+            })?;
 
         self.freemint_count
             .save(deps.storage, &(freemint_count + 1))?;
