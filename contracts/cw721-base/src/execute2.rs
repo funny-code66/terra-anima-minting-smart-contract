@@ -16,10 +16,6 @@ use crate::msg::*;
 use crate::state::*;
 use crate::traits::*;
 
-// version info for migration info
-const CONTRACT_NAME: &str = "crates.io:cw721-base";
-const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-
 impl<'a> Cw721ExtendedContract<'a> {
     pub fn execute(
         &self,
@@ -154,9 +150,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             return Err(ContractError::Unauthorized {});
         }
 
-        let free_drop = info.sender == minter && freemint_count < 50;
-
-        if !free_drop {
+        if freemint_count >= 50 {
             return Err(ContractError::Unauthorized {});
         };
 

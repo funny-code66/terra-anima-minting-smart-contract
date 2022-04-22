@@ -15,7 +15,7 @@ use crate::state::*;
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw721-base";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const BASE_URI: &str = env!("ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/");
+const BASE_URI: &str = "ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/";
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
@@ -150,7 +150,7 @@ where
         let token = TokenInfo {
             owner: deps.api.addr_validate(&msg.owner)?,
             approvals: vec![],
-            token_uri: format!("{}{}.json", BASE_URI, token_id),
+            token_uri: Some(format!("{}{}.json", BASE_URI, token_id)),
             extension: msg.extension,
         };
 
