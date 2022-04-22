@@ -54,6 +54,23 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         let pro = self.pro.load(deps.storage)?;
         let treas = self.treas.load(deps.storage)?;
 
+        let team_signed = self
+            .cw3_signature
+            .may_load(deps.storage, &team)?
+            .unwrap_or(false);
+        let pro_signed = self
+            .cw3_signature
+            .may_load(deps.storage, &pro)?
+            .unwrap_or(false);
+        let treas_signed = self
+            .cw3_signature
+            .may_load(deps.storage, &treas)?
+            .unwrap_or(false);
+
+        if !team_signed || !pro_signed || !treas_signed {
+            return Err(ContractError::Unauthorized {});
+        }
+
         let current_uluna_amount = deps
             .querier
             .query_balance(env.contract.address.to_string(), "uluna")?
@@ -62,6 +79,10 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         let team_portion = current_uluna_amount * Uint128::from(30u128) / Uint128::from(100u128);
         let pro_portion = current_uluna_amount * Uint128::from(14u128) / Uint128::from(100u128);
         let treas_portion = current_uluna_amount * Uint128::from(56u128) / Uint128::from(100u128);
+
+        self.cw3_signature.save(deps.storage, &team, &(false))?;
+        self.cw3_signature.save(deps.storage, &pro, &(false))?;
+        self.cw3_signature.save(deps.storage, &treas, &(false))?;
 
         let mut messages: Vec<CosmosMsg> = vec![];
         messages.push(CosmosMsg::Bank(BankMsg::Send {
