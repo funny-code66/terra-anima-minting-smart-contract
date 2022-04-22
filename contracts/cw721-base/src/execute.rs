@@ -112,10 +112,11 @@ where
         let token_minted: NumTokensResponse = deps
             .querier
             .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
-        let balance: u64 = self
+        let balance = self
             .wallet_balance
             .may_load(deps.storage, &info.sender)?
-            .unwrap_or_default();
+            .unwrap_or(0u64);
+
         let minter = self.minter.load(deps.storage)?;
 
         let can_mint = if token_minted.count < 1000 && balance < 2 {

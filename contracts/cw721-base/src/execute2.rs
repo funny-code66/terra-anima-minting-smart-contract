@@ -16,6 +16,8 @@ use crate::msg::*;
 use crate::state::*;
 use crate::traits::*;
 
+const BASE_URI: &str = "ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/";
+
 impl<'a> Cw721ExtendedContract<'a> {
     pub fn execute(
         &self,
@@ -154,15 +156,15 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             return Err(ContractError::Unauthorized {});
         };
 
+        let token_id: &str = &(freemint_count + 3001).to_string()[..];
         // create the token
         let token = TokenInfo {
             owner: deps.api.addr_validate(&msg.owner)?,
             approvals: vec![],
-            token_uri: None,
+            token_uri: Some(format!("{}{}.json", BASE_URI, token_id)),
             extension: msg.extension,
         };
 
-        let token_id: &str = &(freemint_count + 3001).to_string()[..];
         self.tokens
             .update(deps.storage, token_id, |old| match old {
                 Some(_) => Err(ContractError::Claimed {}),
