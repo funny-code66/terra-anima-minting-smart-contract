@@ -45,6 +45,21 @@ where
         _info: MessageInfo,
         art_reveal: bool,
     ) -> Result<Response, ContractError>;
+
+    fn execute_free_mint(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        msg: FreeMintMsg<T>,
+    ) -> Result<Response, ContractError>;
+
+    fn execute_sign(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+    ) -> Result<Response, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>

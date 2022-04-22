@@ -29,6 +29,7 @@ impl<'a> Cw721ExtendedContract<'a> {
         msg: ExecuteMsg<Extension>,
     ) -> Result<Response, ContractError> {
         match msg {
+            ExecuteMsg::FreeMint(msg) => self.execute_free_mint(deps, env, info, msg),
             ExecuteMsg::Withdraw {} => self.execute_withdraw(deps, env, info),
             ExecuteMsg::SetBaseUri { base_uri } => {
                 self.execute_set_base_uri(deps, env, info, base_uri)
@@ -36,6 +37,7 @@ impl<'a> Cw721ExtendedContract<'a> {
             ExecuteMsg::SetArtReveal { art_reveal } => {
                 self.execute_set_art_reveal(deps, env, info, art_reveal)
             }
+            ExecuteMsg::Sign {} => self.execute_sign(deps, env, info),
             _ => Cw721ExtendedContract::default()._execute(deps, env, info, msg),
         }
     }
@@ -113,138 +115,80 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             .add_attribute("action", "set_art_reveal")
             .add_attribute("base_uri", &art_reveal.to_string()))
     }
+
+    fn execute_free_mint(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        msg: FreeMintMsg<Extension>,
+    ) -> Result<Response, ContractError> {
+        let freemint_count: u64 = self
+            .freemint_count
+            .may_load(deps.storage)?
+            .unwrap_or_default();
+
+        let minter = self.minter.load(deps.storage)?;
+        if info.sender != minter {
+            return Err(ContractError::Unauthorized {});
+        }
+
+        let free_drop = info.sender == minter && freemint_count < 50;
+
+        if !free_drop {
+            return Err(ContractError::Unauthorized {});
+        };
+
+        // create the token
+        let token = TokenInfo {
+            owner: deps.api.addr_validate(&msg.owner)?,
+            approvals: vec![],
+            token_uri: None,
+            extension: msg.extension,
+        };
+
+        let token_id: &str = &(freemint_count + 3001).to_string()[..];
+        self.tokens
+            .update(deps.storage, token_id, |old| match old {
+                Some(_) => Err(ContractError::Claimed {}),
+                None => Ok(token),
+            })?;
+
+        self.wallet_balance
+            .update(deps.storage, &info.sender, |old| match old {
+                None => Err(ContractError::Claimed {}),
+                Some(old_balance) => Ok(old_balance + 1),
+            });
+
+        self.freemint_count
+            .save(deps.storage, &(freemint_count + 1))?;
+
+        Ok(Response::new()
+            .add_attribute("action", "free_mint")
+            .add_attribute("minter", info.sender)
+            .add_attribute("owner", msg.owner)
+            .add_attribute("token_id", token_id))
+    }
+
+    fn execute_sign(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+    ) -> Result<Response, ContractError> {
+        let team = self.team.load(deps.storage)?;
+        let pro = self.pro.load(deps.storage)?;
+        let treas = self.treas.load(deps.storage)?;
+
+        if info.sender == team || info.sender == pro || info.sender == treas {
+            self.cw3_signature
+                .save(deps.storage, &info.sender, &(true))?;
+            return Ok(Response::new()
+                .add_attribute("action", "sign_for_withdraw")
+                .add_attribute("signer", info.sender)
+                .add_attribute("time", &env.block.time.seconds().to_string()));
+        } else {
+            return Err(ContractError::Unauthorized {});
+        }
+    }
 }
-
-// helpers
-// impl<'a, T, C> Cw721Contract<'a, T, C>
-// where
-//     T: Serialize + DeserializeOwned + Clone,
-//     C: CustomMsg,
-// {
-//     pub fn _transfer_nft(
-//         &self,
-//         deps: DepsMut,
-//         env: &Env,
-//         info: &MessageInfo,
-//         recipient: &str,
-//         token_id: &str,
-//     ) -> Result<TokenInfo<T>, ContractError> {
-//         let mut token = self.tokens.load(deps.storage, &token_id)?;
-//         // ensure we have permissions
-//         self.check_can_send(deps.as_ref(), env, info, &token)?;
-//         // set owner and remove existing approvals
-//         token.owner = deps.api.addr_validate(recipient)?;
-//         token.approvals = vec![];
-//         self.tokens.save(deps.storage, &token_id, &token)?;
-//         Ok(token)
-//     }
-
-//     #[allow(clippy::too_many_arguments)]
-//     pub fn _update_approvals(
-//         &self,
-//         deps: DepsMut,
-//         env: &Env,
-//         info: &MessageInfo,
-//         spender: &str,
-//         token_id: &str,
-//         // if add == false, remove. if add == true, remove then set with this expiration
-//         add: bool,
-//         expires: Option<Expiration>,
-//     ) -> Result<TokenInfo<T>, ContractError> {
-//         let mut token = self.tokens.load(deps.storage, &token_id)?;
-//         // ensure we have permissions
-//         self.check_can_approve(deps.as_ref(), env, info, &token)?;
-
-//         // update the approval list (remove any for the same spender before adding)
-//         let spender_addr = deps.api.addr_validate(spender)?;
-//         token.approvals = token
-//             .approvals
-//             .into_iter()
-//             .filter(|apr| apr.spender != spender_addr)
-//             .collect();
-
-//         // only difference between approve and revoke
-//         if add {
-//             // reject expired data as invalid
-//             let expires = expires.unwrap_or_default();
-//             if expires.is_expired(&env.block) {
-//                 return Err(ContractError::Expired {});
-//             }
-//             let approval = Approval {
-//                 spender: spender_addr,
-//                 expires,
-//             };
-//             token.approvals.push(approval);
-//         }
-
-//         self.tokens.save(deps.storage, &token_id, &token)?;
-
-//         Ok(token)
-//     }
-
-//     /// returns true iff the sender can execute approve or reject on the contract
-//     pub fn check_can_approve(
-//         &self,
-//         deps: Deps,
-//         env: &Env,
-//         info: &MessageInfo,
-//         token: &TokenInfo<T>,
-//     ) -> Result<(), ContractError> {
-//         // owner can approve
-//         if token.owner == info.sender {
-//             return Ok(());
-//         }
-//         // operator can approve
-//         let op = self
-//             .operators
-//             .may_load(deps.storage, (&token.owner, &info.sender))?;
-//         match op {
-//             Some(ex) => {
-//                 if ex.is_expired(&env.block) {
-//                     Err(ContractError::Unauthorized {})
-//                 } else {
-//                     Ok(())
-//                 }
-//             }
-//             None => Err(ContractError::Unauthorized {}),
-//         }
-//     }
-
-//     /// returns true iff the sender can transfer ownership of the token
-//     fn check_can_send(
-//         &self,
-//         deps: Deps,
-//         env: &Env,
-//         info: &MessageInfo,
-//         token: &TokenInfo<T>,
-//     ) -> Result<(), ContractError> {
-//         // owner can send
-//         if token.owner == info.sender {
-//             return Ok(());
-//         }
-
-//         // any non-expired token approval can send
-//         if token
-//             .approvals
-//             .iter()
-//             .any(|apr| apr.spender == info.sender && !apr.is_expired(&env.block))
-//         {
-//             return Ok(());
-//         }
-
-//         // operator can send
-//         let op = self
-//             .operators
-//             .may_load(deps.storage, (&token.owner, &info.sender))?;
-//         match op {
-//             Some(ex) => {
-//                 if ex.is_expired(&env.block) {
-//                     Err(ContractError::Unauthorized {})
-//                 } else {
-//                     Ok(())
-//                 }
-//             }
-//             None => Err(ContractError::Unauthorized {}),
-//         }
-//     }
-// }
