@@ -15,6 +15,7 @@ use crate::state::*;
 // version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw721-base";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
+const BASE_URI: &str = env!("ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/");
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
@@ -88,8 +89,8 @@ where
     T: Serialize + DeserializeOwned + Clone,
     C: CustomMsg,
 {
-    pub fn mint(
-        &self,
+    pub fn mint<'b>(
+        &'b self,
         deps: DepsMut,
         env: Env,
         info: MessageInfo,
@@ -111,49 +112,59 @@ where
         let token_minted: NumTokensResponse = deps
             .querier
             .query_wasm_smart(env.contract.address, &QueryMsg::NumTokens {})?;
-        // let token_minted: u64 = self.token_count.load(deps.storage)?;
+        let balance: u64 = self
+            .wallet_balance
+            .may_load(deps.storage, &info.sender)?
+            .unwrap_or_default();
+        let minter = self.minter.load(deps.storage)?;
 
-        let can_mint = match token_minted.count < 1000 {
-            true => match fund.amount.u128() {
+        let can_mint = if token_minted.count < 1000 && balance < 2 {
+            match fund.amount.u128() {
                 130000 => msg.token_num == String::from("a"),
                 125000 => msg.token_num == String::from("b"),
                 _ => false,
-            },
-            false => match fund.amount.u128() {
+            }
+        } else if balance < 4 && token_minted.count < 3000 {
+            match fund.amount.u128() {
                 150000 => true,
                 145000 => msg.token_num == String::from("b"),
                 140000 => msg.token_num == String::from("c"),
                 135000 => msg.token_num == String::from("d"),
                 13000 => msg.token_num == String::from("e"),
                 _ => false,
-            },
+            }
+        } else {
+            false
         };
 
         if !can_mint {
             return Err(ContractError::Unauthorized {});
         };
 
-        // let minter = self.minter.load(deps.storage)?;
-
         // if info.sender != minter {
         //     return Err(ContractError::Unauthorized {});
         // }
 
+        let token_id: &str = &(token_minted.count + 1).to_string()[..];
         // create the token
         let token = TokenInfo {
             owner: deps.api.addr_validate(&msg.owner)?,
             approvals: vec![],
-            token_uri: msg.token_uri,
+            token_uri: format!("{}{}.json", BASE_URI, token_id),
             extension: msg.extension,
         };
 
-        let token_id: &str = &(token_minted.count + 1).to_string()[..];
         self.tokens
             .update(deps.storage, token_id, |old| match old {
                 Some(_) => Err(ContractError::Claimed {}),
                 None => Ok(token),
             })?;
 
+        self.wallet_balance
+            .update(deps.storage, &info.sender, |old| match old {
+                None => Err(ContractError::Claimed {}),
+                Some(old_balance) => Ok(old_balance + 1),
+            });
         self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
