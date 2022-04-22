@@ -171,11 +171,13 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
                 None => Ok(token),
             })?;
 
+        let old_balance = self.wallet_balance.may_load(deps.storage, &info.sender)?;
+        let new_balance = match old_balance {
+            None => 1,
+            Some(val) => val + 1,
+        };
         self.wallet_balance
-            .update(deps.storage, &info.sender, |old| match old {
-                None => Err(ContractError::Claimed {}),
-                Some(old_balance) => Ok(old_balance + 1),
-            })?;
+            .save(deps.storage, &info.sender, &new_balance)?;
 
         self.freemint_count
             .save(deps.storage, &(freemint_count + 1))?;
