@@ -14,4 +14,16 @@ pub enum ContractError {
 
     #[error("Cannot set approval that is already expired")]
     Expired {},
+
+    #[error("Free Mint limit exceeded")]
+    FreeLimitExceeded {},
+
+    #[error("Not a minter")]
+    NotMinter {},
+
+    #[error("Not a signer")]
+    NotSigner {},
+
+    #[error("Not all signed")]
+    NotAllSigned {},
 }

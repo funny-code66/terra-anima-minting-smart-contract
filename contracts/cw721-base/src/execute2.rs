@@ -149,11 +149,11 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
 
         let minter = self.minter.load(deps.storage)?;
         if info.sender != minter {
-            return Err(ContractError::Unauthorized {});
+            return Err(ContractError::NotMinter {});
         }
 
         if freemint_count >= 50 {
-            return Err(ContractError::Unauthorized {});
+            return Err(ContractError::FreeLimitExceeded {});
         };
 
         let token_id: &str = &(freemint_count + 3001).to_string()[..];
@@ -207,7 +207,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
                 .add_attribute("signer", info.sender)
                 .add_attribute("time", &env.block.time.seconds().to_string()));
         } else {
-            return Err(ContractError::Unauthorized {});
+            return Err(ContractError::NotSigner {});
         }
     }
 }
