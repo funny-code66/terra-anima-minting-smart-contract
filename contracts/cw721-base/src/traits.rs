@@ -4,8 +4,7 @@ use serde::Serialize;
 
 use crate::error::*;
 use crate::msg::*;
-use cosmwasm_std::{Binary, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult, Uint128};
-use cw0::Expiration;
+use cosmwasm_std::{Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult, Uint128};
 
 // TODO: move this somewhere else... ideally cosmwasm-std
 pub trait CustomMsg: Clone + std::fmt::Debug + PartialEq + JsonSchema {}

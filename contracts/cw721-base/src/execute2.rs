@@ -1,15 +1,4 @@
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-
-use cosmwasm_std::{
-    BankMsg, Binary, Coin, CosmosMsg, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult,
-    Uint128,
-};
-
-use cw2::set_contract_version;
-use cw721::{
-    ContractInfoResponse, CustomMsg, Cw721Execute, Cw721ReceiveMsg, Expiration, NumTokensResponse,
-};
+use cosmwasm_std::{BankMsg, Coin, CosmosMsg, DepsMut, Env, MessageInfo, Response, Uint128};
 
 use crate::error::ContractError;
 use crate::msg::*;
@@ -66,7 +55,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             .unwrap_or(false);
 
         if !team_signed || !pro_signed || !treas_signed {
-            return Err(ContractError::Unauthorized {});
+            return Err(ContractError::NotAllSigned {});
         }
 
         let current_uluna_amount = deps

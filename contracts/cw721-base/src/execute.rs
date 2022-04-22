@@ -121,7 +121,7 @@ where
         )?;
         let balance = balance_response.balance;
 
-        let minter = self.minter.load(deps.storage)?;
+        let _minter = self.minter.load(deps.storage)?;
 
         let can_mint = if token_minted.count < 1000 && balance < 2 {
             match fund.amount.u128() {
@@ -401,7 +401,7 @@ where
     }
 
     /// returns true iff the sender can transfer ownership of the token
-    fn check_can_send(
+    pub fn check_can_send(
         &self,
         deps: Deps,
         env: &Env,
