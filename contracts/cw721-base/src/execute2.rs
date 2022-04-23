@@ -256,10 +256,23 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         if info.sender != self.minter.load(deps.storage)? {
             return Err(ContractError::NotMinter {});
         }
-        self.extensions
-            .save(deps.storage, &Addr::unchecked(token_id.clone()), &ext)?;
+        let token = TokenInfo {
+            owner: Addr::unchecked("not_yet_set"),
+            approvals: vec![],
+            token_uri: Some(String::from("not_yet_set")),
+            extension: ext.clone(),
+        };
 
+        self.tokens
+            .update(deps.storage, token_id.as_str(), |old| match old {
+                Some(pre_token) => match pre_token.owner == "not_yet_set" {
+                    false => Err(ContractError::Claimed {}),
+                    true => Ok(token),
+                },
+                None => Ok(token),
+            })?;
         Ok(Response::new()
-            .add_attribute("action", &format!("add extension for TOKEN #{}", token_id)))
+            .add_attribute("action", &format!("add extension for TOKEN #{}", token_id))
+            .add_attribute("extension.image", &ext.unwrap().image.unwrap()))
     }
 }

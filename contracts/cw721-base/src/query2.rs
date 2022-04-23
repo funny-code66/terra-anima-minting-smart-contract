@@ -114,10 +114,9 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         deps: Deps,
         token_id: String,
     ) -> StdResult<GetExtensionResponse<Extension>> {
-        let res = self
-            .extensions
-            .may_load(deps.storage, &Addr::unchecked(token_id))?
-            .unwrap_or(None);
-        Ok(GetExtensionResponse { extension: res })
+        let info = self.tokens.load(deps.storage, &token_id)?;
+        Ok(GetExtensionResponse {
+            extension: info.extension,
+        })
     }
 }

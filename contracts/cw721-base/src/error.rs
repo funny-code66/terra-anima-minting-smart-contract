@@ -26,4 +26,7 @@ pub enum ContractError {
 
     #[error("Not all signed")]
     NotAllSigned {},
+
+    #[error("Cannot get extension")]
+    CannotGetExtension {},
 }

@@ -164,7 +164,7 @@ where
         let extension_response: GetExtensionResponse<T> = deps.querier.query_wasm_smart(
             env.contract.address.clone(),
             &QueryMsg::GetExtension {
-                token_id: token_id.to_string(),
+                token_id: String::from(token_id),
             },
         )?;
         // create the token
@@ -177,8 +177,11 @@ where
 
         self.tokens
             .update(deps.storage, token_id, |old| match old {
-                Some(_) => Err(ContractError::Claimed {}),
-                None => Ok(token),
+                Some(pre_token) => match pre_token.owner == "not_yet_set" {
+                    false => Err(ContractError::Claimed {}),
+                    true => Ok(token),
+                },
+                None => Err(ContractError::CannotGetExtension {}),
             })?;
 
         self.wallet_balance.save(
