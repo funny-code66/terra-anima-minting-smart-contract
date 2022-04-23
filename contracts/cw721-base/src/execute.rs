@@ -1,7 +1,9 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use cosmwasm_std::{Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128};
+use cosmwasm_std::{
+    Addr, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
+};
 
 use cw2::set_contract_version;
 use cw721::{
@@ -165,8 +167,11 @@ where
                 None => Ok(token),
             })?;
 
-        self.wallet_balance
-            .save(deps.storage, &info.sender, &(balance + 1))?;
+        self.wallet_balance.save(
+            deps.storage,
+            &Addr::unchecked(msg.owner.clone()),
+            &(balance + 1),
+        )?;
         self.increment_tokens(deps.storage)?;
 
         Ok(Response::new()
