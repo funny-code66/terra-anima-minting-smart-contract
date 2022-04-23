@@ -13,6 +13,9 @@ pub struct Trait {
     pub display_type: Option<String>,
     pub trait_type: String,
     pub value: String,
+    pub path: String,
+    pub count: String,
+    pub frequency: String,
 }
 
 // see: https://docs.opensea.io/docs/metadata-standards
@@ -27,10 +30,6 @@ pub struct Metadata {
     pub background_color: Option<String>,
     pub animation_url: Option<String>,
     pub youtube_url: Option<String>,
-    // royalty info
-    /// royalties are owed on this token if it is Some
-    pub royalty_percentage: Option<u64>,
-    pub royalty_payment_address: Option<String>,
 }
 
 pub type Extension = Option<Metadata>;
@@ -41,15 +40,11 @@ where
 {
     pub contract_info: Item<'a, ContractInfoResponse>,
     pub minter: Item<'a, Addr>,
-    pub team: Item<'a, Addr>,
-    pub pro: Item<'a, Addr>,
-    pub treas: Item<'a, Addr>,
     pub token_count: Item<'a, u64>,
     /// Stored as (granter, operator) giving operator full control over granter's account
     pub operators: Map<'a, (&'a Addr, &'a Addr), Expiration>,
     pub tokens: IndexedMap<'a, &'a str, TokenInfo<T>, TokenIndexes<'a, T>>,
     pub is_on_reveal: Item<'a, bool>,
-    pub base_uri: Item<'a, String>,
     pub cw3_signature: Map<'a, &'a Addr, bool>,
     pub whitelist: Map<'a, &'a Addr, bool>,
     pub freemint_count: Item<'a, u64>,
@@ -74,9 +69,6 @@ where
         Self::new(
             "nft_info",
             "minter",
-            "team",
-            "pro",
-            "treas",
             "num_tokens",
             "operators",
             "tokens",
@@ -92,9 +84,6 @@ where
     fn new(
         contract_key: &'a str,
         minter_key: &'a str,
-        team_key: &'a str,
-        pro_key: &'a str,
-        treas_key: &'a str,
         token_count_key: &'a str,
         operator_key: &'a str,
         tokens_key: &'a str,
@@ -106,9 +95,6 @@ where
         Self {
             contract_info: Item::new(contract_key),
             minter: Item::new(minter_key),
-            team: Item::new(team_key),
-            pro: Item::new(pro_key),
-            treas: Item::new(treas_key),
             cw3_signature: Map::new(""),
             whitelist: Map::new(""),
             token_count: Item::new(token_count_key),
@@ -116,7 +102,6 @@ where
             tokens: IndexedMap::new(tokens_key, indexes),
             _custom_response: PhantomData,
             is_on_reveal: Item::new("true"),
-            base_uri: Item::new("ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/"),
             freemint_count: Item::new("0"),
             wallet_balance: Map::new(""),
         }

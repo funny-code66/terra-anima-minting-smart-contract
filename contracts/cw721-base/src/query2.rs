@@ -1,3 +1,4 @@
+use crate::constants::*;
 use crate::msg::*;
 use crate::state::*;
 use crate::traits::*;
@@ -31,28 +32,11 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         token_id: String,
         sale_price: Uint128,
     ) -> StdResult<RoyaltiesInfoResponse> {
-        let contract = Cw721ExtendedContract::default();
-        let token_info = contract.tokens.load(deps.storage, &token_id)?;
-
-        let royalty_percentage = match token_info.extension {
-            Some(ref ext) => match ext.royalty_percentage {
-                Some(percentage) => Decimal::percent(percentage),
-                None => Decimal::percent(0),
-            },
-            None => Decimal::percent(0),
-        };
-        let royalty_from_sale_price = sale_price * royalty_percentage;
-
-        let royalty_address = match token_info.extension {
-            Some(ext) => match ext.royalty_payment_address {
-                Some(addr) => addr,
-                None => String::from(""),
-            },
-            None => String::from(""),
-        };
+        let percentage = Decimal::percent(ROYALTY_PERCENTAGE);
+        let royalty_from_sale_price = sale_price * percentage;
 
         Ok(RoyaltiesInfoResponse {
-            address: royalty_address,
+            address: ROYALTY_ADDRESS.to_string(),
             royalty_amount: royalty_from_sale_price,
         })
     }
@@ -73,14 +57,13 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
     }
 
     fn query_get_token_uri(&self, deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
-        let base_uri: String = self.base_uri.may_load(deps.storage)?.unwrap_or_default();
         let is_on_reveal = self
             .is_on_reveal
             .may_load(deps.storage)?
             .unwrap_or_default();
 
         let res = match is_on_reveal {
-            true => format!("{}{}.json", base_uri, token_id),
+            true => format!("{}{}.json", BASE_URI, token_id),
             false => String::from("NOT_YET_REVEALED"),
         };
 

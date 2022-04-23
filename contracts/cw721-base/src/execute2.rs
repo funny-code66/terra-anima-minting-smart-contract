@@ -1,5 +1,6 @@
 use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, DepsMut, Env, MessageInfo, Response, Uint128};
 
+use crate::constants::*;
 use crate::error::ContractError;
 use crate::msg::*;
 use crate::state::*;
@@ -18,9 +19,6 @@ impl<'a> Cw721ExtendedContract<'a> {
         match msg {
             ExecuteMsg::FreeMint(msg) => self.execute_free_mint(deps, env, info, msg),
             ExecuteMsg::Withdraw {} => self.execute_withdraw(deps, env, info),
-            ExecuteMsg::SetBaseUri { base_uri } => {
-                self.execute_set_base_uri(deps, env, info, base_uri)
-            }
             ExecuteMsg::SetArtReveal { art_reveal } => {
                 self.execute_set_art_reveal(deps, env, info, art_reveal)
             }
@@ -43,21 +41,17 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         env: Env,
         _info: MessageInfo,
     ) -> Result<Response, ContractError> {
-        let team = self.team.load(deps.storage)?;
-        let pro = self.pro.load(deps.storage)?;
-        let treas = self.treas.load(deps.storage)?;
-
         let team_signed = self
             .cw3_signature
-            .may_load(deps.storage, &team)?
+            .may_load(deps.storage, &Addr::unchecked(ADDR_TEAM))?
             .unwrap_or(false);
         let pro_signed = self
             .cw3_signature
-            .may_load(deps.storage, &pro)?
+            .may_load(deps.storage, &Addr::unchecked(ADDR_PRO))?
             .unwrap_or(false);
         let treas_signed = self
             .cw3_signature
-            .may_load(deps.storage, &treas)?
+            .may_load(deps.storage, &Addr::unchecked(ADDR_TREAS))?
             .unwrap_or(false);
 
         if !team_signed || !pro_signed || !treas_signed {
@@ -73,50 +67,36 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         let pro_portion = current_uluna_amount * Uint128::from(14u128) / Uint128::from(100u128);
         let treas_portion = current_uluna_amount * Uint128::from(56u128) / Uint128::from(100u128);
 
-        self.cw3_signature.save(deps.storage, &team, &(false))?;
-        self.cw3_signature.save(deps.storage, &pro, &(false))?;
-        self.cw3_signature.save(deps.storage, &treas, &(false))?;
+        self.cw3_signature
+            .save(deps.storage, &Addr::unchecked(ADDR_TEAM), &(false))?;
+        self.cw3_signature
+            .save(deps.storage, &Addr::unchecked(ADDR_PRO), &(false))?;
+        self.cw3_signature
+            .save(deps.storage, &Addr::unchecked(ADDR_TREAS), &(false))?;
 
         let mut messages: Vec<CosmosMsg> = vec![];
         messages.push(CosmosMsg::Bank(BankMsg::Send {
-            to_address: team.to_string(),
+            to_address: ADDR_TEAM.to_string(),
             amount: vec![Coin {
                 denom: String::from("uluna"),
                 amount: team_portion,
             }],
         }));
         messages.push(CosmosMsg::Bank(BankMsg::Send {
-            to_address: pro.to_string(),
+            to_address: ADDR_PRO.to_string(),
             amount: vec![Coin {
                 denom: String::from("uluna"),
                 amount: pro_portion,
             }],
         }));
         messages.push(CosmosMsg::Bank(BankMsg::Send {
-            to_address: treas.to_string(),
+            to_address: ADDR_TREAS.to_string(),
             amount: vec![Coin {
                 denom: String::from("uluna"),
                 amount: treas_portion,
             }],
         }));
         Ok(Response::new().add_messages(messages))
-    }
-
-    fn execute_set_base_uri(
-        &self,
-        deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        _uri: String,
-    ) -> Result<Response, ContractError> {
-        if info.sender != self.minter.load(deps.storage)? {
-            return Err(ContractError::NotMinter {});
-        }
-        self.base_uri.save(deps.storage, &_uri)?;
-
-        Ok(Response::new()
-            .add_attribute("action", "set_base_uri")
-            .add_attribute("base_uri", &_uri))
     }
 
     fn execute_set_art_reveal(
@@ -195,11 +175,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         env: Env,
         info: MessageInfo,
     ) -> Result<Response, ContractError> {
-        let team = self.team.load(deps.storage)?;
-        let pro = self.pro.load(deps.storage)?;
-        let treas = self.treas.load(deps.storage)?;
-
-        if info.sender == team || info.sender == pro || info.sender == treas {
+        if info.sender == ADDR_TEAM || info.sender == ADDR_PRO || info.sender == ADDR_TREAS {
             self.cw3_signature
                 .save(deps.storage, &info.sender, &(true))?;
             return Ok(Response::new()

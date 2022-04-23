@@ -1,3 +1,4 @@
+mod constants;
 mod contract_tests;
 mod error;
 mod execute;
@@ -8,6 +9,7 @@ mod query2;
 pub mod state;
 mod traits;
 
+pub use crate::constants::*;
 pub use crate::error::ContractError;
 pub use crate::msg::*;
 pub use crate::state::*;

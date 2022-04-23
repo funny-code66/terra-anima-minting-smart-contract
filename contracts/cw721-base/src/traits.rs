@@ -29,14 +29,6 @@ where
         _info: MessageInfo,
     ) -> Result<Response, ContractError>;
 
-    fn execute_set_base_uri(
-        &self,
-        _deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        base_uri: String,
-    ) -> Result<Response, ContractError>;
-
     fn execute_set_art_reveal(
         &self,
         _deps: DepsMut,

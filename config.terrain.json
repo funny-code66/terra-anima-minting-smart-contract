@@ -19,10 +19,7 @@
         "instantiateMsg": {
           "name":"Invoker NFT",
           "symbol":"IVK",
-          "minter":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg",
-          "team":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg",
-          "pro":"terra10hcrj0tlum8nkk2apz3v6y0vrdd8k9murs9vfy",
-          "treas":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg"
+          "minter":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg"
         }
       }
     }

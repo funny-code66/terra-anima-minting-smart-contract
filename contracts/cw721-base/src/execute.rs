@@ -10,14 +10,10 @@ use cw721::{
     ContractInfoResponse, CustomMsg, Cw721Execute, Cw721ReceiveMsg, Expiration, NumTokensResponse,
 };
 
+use crate::constants::*;
 use crate::error::ContractError;
 use crate::msg::*;
 use crate::state::*;
-
-// version info for migration info
-const CONTRACT_NAME: &str = "crates.io:cw721-base";
-const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
-const BASE_URI: &str = "ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/";
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
@@ -39,14 +35,8 @@ where
         };
         self.contract_info.save(deps.storage, &info)?;
         let minter = deps.api.addr_validate(&msg.minter)?;
-        let team = deps.api.addr_validate(&msg.team)?;
-        let pro = deps.api.addr_validate(&msg.pro)?;
-        let treas = deps.api.addr_validate(&msg.treas)?;
 
         self.minter.save(deps.storage, &minter)?;
-        self.team.save(deps.storage, &team)?;
-        self.pro.save(deps.storage, &pro)?;
-        self.treas.save(deps.storage, &treas)?;
         Ok(Response::default())
     }
 
