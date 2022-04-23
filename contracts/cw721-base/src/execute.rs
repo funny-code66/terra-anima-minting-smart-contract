@@ -17,7 +17,7 @@ use crate::state::*;
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     pub fn instantiate(
@@ -78,7 +78,7 @@ where
 // TODO pull this into some sort of trait extension??
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     pub fn mint<'b>(
@@ -191,7 +191,7 @@ where
 
 impl<'a, T, C> Cw721Execute<T, C> for Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     type Err = ContractError;
@@ -321,7 +321,7 @@ where
 // helpers
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     pub fn _transfer_nft(

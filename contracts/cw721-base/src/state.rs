@@ -36,7 +36,7 @@ pub type Extension = Option<Metadata>;
 
 pub struct Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     pub contract_info: Item<'a, ContractInfoResponse>,
     pub minter: Item<'a, Addr>,
@@ -63,23 +63,16 @@ where
 
 impl<T, C> Default for Cw721Contract<'static, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn default() -> Self {
-        Self::new(
-            "nft_info",
-            "minter",
-            "num_tokens",
-            "operators",
-            "tokens",
-            "tokens__owner",
-        )
+        Self::new("nft_info", "minter", "0", "", "tokens", "tokens__owner")
     }
 }
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn new(
         contract_key: &'a str,
@@ -152,7 +145,7 @@ impl Approval {
 
 pub struct TokenIndexes<'a, T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     // pk goes to second tuple element
     pub owner: MultiIndex<'a, (Addr, Vec<u8>), TokenInfo<T>>,
@@ -160,7 +153,7 @@ where
 
 impl<'a, T> IndexList<TokenInfo<T>> for TokenIndexes<'a, T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn get_indexes(&'_ self) -> Box<dyn Iterator<Item = &'_ dyn Index<TokenInfo<T>>> + '_> {
         let v: Vec<&dyn Index<TokenInfo<T>>> = vec![&self.owner];

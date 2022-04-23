@@ -239,16 +239,20 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             extension: ext.clone(),
         };
 
-        self.tokens
+        let res = self
+            .tokens
             .update(deps.storage, token_id.as_str(), |old| match old {
                 Some(pre_token) => match pre_token.owner == "not_yet_set" {
                     false => Err(ContractError::Claimed {}),
                     true => Ok(token),
                 },
                 None => Ok(token),
-            })?;
-        Ok(Response::new()
-            .add_attribute("action", &format!("add extension for TOKEN #{}", token_id))
-            .add_attribute("extension.image", &ext.unwrap().image.unwrap()))
+            });
+        match res {
+            Ok(_) => Ok(Response::new()
+                .add_attribute("action", &format!("add extension for TOKEN #{}", token_id))
+                .add_attribute("extension.image", &ext.unwrap().image.unwrap())),
+            Err(e) => Err(e),
+        }
     }
 }
