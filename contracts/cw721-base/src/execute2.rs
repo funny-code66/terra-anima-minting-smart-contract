@@ -239,4 +239,19 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             .add_attribute("action", "remove_from_whitelist")
             .add_attribute("member", &member))
     }
+
+    fn execute_add_extension(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        token_id: String,
+        ext: Extension,
+    ) -> Result<Response, ContractError> {
+        self.extensions
+            .save(deps.storage, &Addr::unchecked(token_id.clone()), &ext)?;
+
+        Ok(Response::new()
+            .add_attribute("action", &format!("add extension for TOKEN #{}", token_id)))
+    }
 }

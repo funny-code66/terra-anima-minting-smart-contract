@@ -108,4 +108,16 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
             is_on_whitelist: res,
         })
     }
+
+    fn query_get_extension(
+        &self,
+        deps: Deps,
+        token_id: String,
+    ) -> StdResult<GetExtensionResponse<Extension>> {
+        let res = self
+            .extensions
+            .may_load(deps.storage, &Addr::unchecked(token_id))?
+            .unwrap_or(None);
+        Ok(GetExtensionResponse { extension: res })
+    }
 }

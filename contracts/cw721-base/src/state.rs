@@ -52,6 +52,7 @@ where
     pub base_uri: Item<'a, String>,
     pub cw3_signature: Map<'a, &'a Addr, bool>,
     pub whitelist: Map<'a, &'a Addr, bool>,
+    pub extensions: Map<'a, &'a Addr, T>,
     pub freemint_count: Item<'a, u64>,
     pub wallet_balance: Map<'a, &'a Addr, u64>,
 
@@ -118,6 +119,7 @@ where
             is_on_reveal: Item::new("true"),
             base_uri: Item::new("ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/"),
             freemint_count: Item::new("0"),
+            extensions: Map::new("0"),
             wallet_balance: Map::new(""),
         }
     }

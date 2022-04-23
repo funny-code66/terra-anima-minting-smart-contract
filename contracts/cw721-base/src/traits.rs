@@ -75,6 +75,15 @@ where
         info: MessageInfo,
         member: String,
     ) -> Result<Response, ContractError>;
+
+    fn execute_add_extension(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        token_id: String,
+        ext: T,
+    ) -> Result<Response, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>
@@ -93,6 +102,12 @@ where
     fn query_is_on_reveal(&self, _deps: Deps) -> StdResult<IsOnRevealResponse>;
 
     fn query_get_token_uri(&self, _deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse>;
+
+    fn query_get_extension(
+        &self,
+        _deps: Deps,
+        token_id: String,
+    ) -> StdResult<GetExtensionResponse<T>>;
 
     fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse>;
 

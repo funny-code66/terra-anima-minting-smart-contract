@@ -160,12 +160,19 @@ where
         // }
 
         let token_id: &str = &(token_minted.count + 1).to_string()[..];
+
+        let extension_response: GetExtensionResponse<T> = deps.querier.query_wasm_smart(
+            env.contract.address.clone(),
+            &QueryMsg::GetExtension {
+                token_id: token_id.to_string(),
+            },
+        )?;
         // create the token
         let token = TokenInfo {
             owner: deps.api.addr_validate(&msg.owner)?,
             approvals: vec![],
             token_uri: Some(format!("{}{}.json", BASE_URI, token_id)),
-            extension: msg.extension,
+            extension: extension_response.extension,
         };
 
         self.tokens

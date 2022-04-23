@@ -1,6 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::state::*;
 use cosmwasm_std::{Binary, Uint128};
 use cw721::{CustomMsg, Expiration};
 
@@ -95,6 +96,9 @@ pub enum ExecuteMsg<T> {
     RemoveWhitelist {
         member: String,
     },
+
+    // Add extension for token_id
+    AddExtension(AddExtensionMsg<T>),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -115,6 +119,14 @@ pub struct MintMsg<T> {
 pub struct FreeMintMsg<T> {
     /// The owner of the newly minter NFT
     pub owner: String,
+    /// Any custom extension used by this contract
+    pub extension: T,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct AddExtensionMsg<T> {
+    /// The owner of the newly minter NFT
+    pub token_id: String,
     /// Any custom extension used by this contract
     pub extension: T,
 }
@@ -191,6 +203,11 @@ pub enum QueryMsg {
         owner: String,
     },
 
+    // Get extension for its id.
+    GetExtension {
+        token_id: String,
+    },
+
     // Check if exist on whitelist
     IsOnWhitelist {
         member: String,
@@ -242,4 +259,9 @@ pub struct GetBalanceResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct IsOnWhitelistResponse {
     pub is_on_whitelist: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct GetExtensionResponse<T> {
+    pub extension: T,
 }
