@@ -88,7 +88,7 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         let res = self
             .wallet_balance
             .may_load(deps.storage, &Addr::unchecked(owner))?
-            .unwrap_or(99999999);
+            .unwrap_or(0);
         Ok(GetBalanceResponse { balance: res })
     }
 }
