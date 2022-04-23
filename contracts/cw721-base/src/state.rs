@@ -56,7 +56,7 @@ where
 // This is a signal, the implementations are in other files
 impl<'a, T, C> Cw721<T, C> for Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
 }

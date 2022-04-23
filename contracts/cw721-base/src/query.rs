@@ -18,7 +18,7 @@ const MAX_LIMIT: u32 = 30;
 
 impl<'a, T, C> Cw721Query<T> for Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     fn contract_info(&self, deps: Deps) -> StdResult<ContractInfoResponse> {
@@ -32,10 +32,16 @@ where
 
     fn nft_info(&self, deps: Deps, token_id: String) -> StdResult<NftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
-        Ok(NftInfoResponse {
-            token_uri: info.token_uri,
-            extension: info.extension,
-        })
+        match info.owner == "not_yet_set" {
+            false => Ok(NftInfoResponse {
+                token_uri: info.token_uri,
+                extension: info.extension,
+            }),
+            true => Ok(NftInfoResponse {
+                token_uri: Some("not_yet_set".into()),
+                extension: T::default(),
+            }),
+        }
     }
 
     fn owner_of(
@@ -136,9 +142,15 @@ where
                 owner: info.owner.to_string(),
                 approvals: humanize_approvals(&env.block, &info, include_expired),
             },
-            info: NftInfoResponse {
-                token_uri: info.token_uri,
-                extension: info.extension,
+            info: match info.owner == "not_yet_set" {
+                false => NftInfoResponse {
+                    token_uri: info.token_uri,
+                    extension: info.extension,
+                },
+                true => NftInfoResponse {
+                    token_uri: Some("not_yet_set".into()),
+                    extension: T::default(),
+                },
             },
         })
     }
@@ -146,7 +158,7 @@ where
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
     pub fn minter(&self, deps: Deps) -> StdResult<MinterResponse> {

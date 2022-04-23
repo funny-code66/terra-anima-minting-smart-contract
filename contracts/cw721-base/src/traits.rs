@@ -13,14 +13,14 @@ impl CustomMsg for Empty {}
 
 pub trait Cw721Extended<T, C>: Cw721ExtendedExecute<T> + Cw721ExtendedQuery<T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
     C: CustomMsg,
 {
 }
 
 pub trait Cw721ExtendedExecute<T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn execute_withdraw(
         &self,
@@ -80,7 +80,7 @@ where
 
 pub trait Cw721ExtendedQuery<T>
 where
-    T: Serialize + DeserializeOwned + Clone,
+    T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn query_royalties_info(
         &self,
