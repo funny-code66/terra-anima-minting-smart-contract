@@ -85,6 +85,16 @@ pub enum ExecuteMsg<T> {
 
     // Sign to withdraw (this is multi signature feature)
     Sign {},
+
+    // Add to whitelist
+    AddWhitelist {
+        member: String,
+    },
+
+    // Remove from whitelist
+    RemoveWhitelist {
+        member: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -181,6 +191,11 @@ pub enum QueryMsg {
         owner: String,
     },
 
+    // Check if exist on whitelist
+    IsOnWhitelist {
+        member: String,
+    },
+
     RoyaltyInfo {
         token_id: String,
         sale_price: Uint128,
@@ -222,4 +237,9 @@ pub struct GetTokenUriResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct GetBalanceResponse {
     pub balance: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct IsOnWhitelistResponse {
+    pub is_on_whitelist: bool,
 }

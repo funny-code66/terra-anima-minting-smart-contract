@@ -28,7 +28,7 @@ pub struct Metadata {
     pub animation_url: Option<String>,
     pub youtube_url: Option<String>,
     // royalty info
-	/// royalties are owed on this token if it is Some
+    /// royalties are owed on this token if it is Some
     pub royalty_percentage: Option<u64>,
     pub royalty_payment_address: Option<String>,
 }
@@ -51,6 +51,7 @@ where
     pub is_on_reveal: Item<'a, bool>,
     pub base_uri: Item<'a, String>,
     pub cw3_signature: Map<'a, &'a Addr, bool>,
+    pub whitelist: Map<'a, &'a Addr, bool>,
     pub freemint_count: Item<'a, u64>,
     pub wallet_balance: Map<'a, &'a Addr, u64>,
 
@@ -109,6 +110,7 @@ where
             pro: Item::new(pro_key),
             treas: Item::new(treas_key),
             cw3_signature: Map::new(""),
+            whitelist: Map::new(""),
             token_count: Item::new(token_count_key),
             operators: Map::new(operator_key),
             tokens: IndexedMap::new(tokens_key, indexes),

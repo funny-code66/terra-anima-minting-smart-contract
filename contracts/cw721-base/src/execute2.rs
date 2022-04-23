@@ -1,4 +1,4 @@
-use cosmwasm_std::{BankMsg, Coin, CosmosMsg, DepsMut, Env, MessageInfo, Response, Uint128};
+use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, DepsMut, Env, MessageInfo, Response, Uint128};
 
 use crate::error::ContractError;
 use crate::msg::*;
@@ -25,6 +25,12 @@ impl<'a> Cw721ExtendedContract<'a> {
                 self.execute_set_art_reveal(deps, env, info, art_reveal)
             }
             ExecuteMsg::Sign {} => self.execute_sign(deps, env, info),
+            ExecuteMsg::AddWhitelist { member } => {
+                self.execute_add_whitelist(deps, env, info, member)
+            }
+            ExecuteMsg::RemoveWhitelist { member } => {
+                self.execute_remove_whitelist(deps, env, info, member)
+            }
             _ => Cw721ExtendedContract::default()._execute(deps, env, info, msg),
         }
     }
@@ -198,5 +204,39 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         } else {
             return Err(ContractError::NotSigner {});
         }
+    }
+
+    fn execute_add_whitelist(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        member: String,
+    ) -> Result<Response, ContractError> {
+        if info.sender != self.minter.load(deps.storage)? {
+            return Err(ContractError::NotMinter {});
+        }
+        self.whitelist
+            .save(deps.storage, &Addr::unchecked(member.clone()), &(true))?;
+        Ok(Response::new()
+            .add_attribute("action", "add_to_whitelist")
+            .add_attribute("member", &member))
+    }
+
+    fn execute_remove_whitelist(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        member: String,
+    ) -> Result<Response, ContractError> {
+        if info.sender != self.minter.load(deps.storage)? {
+            return Err(ContractError::NotMinter {});
+        }
+        self.whitelist
+            .save(deps.storage, &Addr::unchecked(member.clone()), &(false))?;
+        Ok(Response::new()
+            .add_attribute("action", "remove_from_whitelist")
+            .add_attribute("member", &member))
     }
 }

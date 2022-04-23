@@ -16,6 +16,9 @@ impl<'a> Cw721ExtendedContract<'a> {
                 to_binary(&self.query_get_token_uri(deps, token_id)?)
             }
             QueryMsg::GetBalance { owner } => to_binary(&self.query_get_balance(deps, owner)?),
+            QueryMsg::IsOnWhitelist { member } => {
+                to_binary(&self.check_is_on_whitelist(deps, member)?)
+            }
             _ => Cw721ExtendedContract::default()._query(deps, env, msg),
         }
     }
@@ -90,5 +93,19 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
             .may_load(deps.storage, &Addr::unchecked(owner))?
             .unwrap_or(0);
         Ok(GetBalanceResponse { balance: res })
+    }
+
+    fn check_is_on_whitelist(
+        &self,
+        deps: Deps,
+        member: String,
+    ) -> StdResult<IsOnWhitelistResponse> {
+        let res = self
+            .whitelist
+            .may_load(deps.storage, &Addr::unchecked(member))?
+            .unwrap_or(false);
+        Ok(IsOnWhitelistResponse {
+            is_on_whitelist: res,
+        })
     }
 }

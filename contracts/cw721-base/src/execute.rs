@@ -116,7 +116,7 @@ where
             .query_wasm_smart(env.contract.address.clone(), &QueryMsg::NumTokens {})?;
 
         let balance_response: GetBalanceResponse = deps.querier.query_wasm_smart(
-            env.contract.address,
+            env.contract.address.clone(),
             &QueryMsg::GetBalance {
                 owner: info.sender.clone().into_string(),
             },
@@ -125,7 +125,14 @@ where
 
         let _minter = self.minter.load(deps.storage)?;
 
-        let can_mint = if token_minted.count < 2 && balance < 1 {
+        let is_on_whitelist = deps.querier.query_wasm_smart(
+            env.contract.address.clone(),
+            &QueryMsg::IsOnWhitelist {
+                member: info.sender.to_string(),
+            },
+        )?;
+
+        let can_mint = if token_minted.count < 2 && balance < 1 && is_on_whitelist {
             match fund.amount.u128() {
                 130000 => msg.token_num == String::from("a"),
                 125000 => msg.token_num == String::from("b"),

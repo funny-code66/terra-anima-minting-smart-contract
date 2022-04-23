@@ -59,6 +59,22 @@ where
         env: Env,
         info: MessageInfo,
     ) -> Result<Response, ContractError>;
+
+    fn execute_add_whitelist(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        member: String,
+    ) -> Result<Response, ContractError>;
+
+    fn execute_remove_whitelist(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        member: String,
+    ) -> Result<Response, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>
@@ -79,4 +95,7 @@ where
     fn query_get_token_uri(&self, _deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse>;
 
     fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse>;
+
+    fn check_is_on_whitelist(&self, deps: Deps, member: String)
+        -> StdResult<IsOnWhitelistResponse>;
 }
