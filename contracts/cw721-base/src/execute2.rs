@@ -141,7 +141,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             return Err(ContractError::NotMinter {});
         }
 
-        if freemint_count >= 50 {
+        if freemint_count >= 1 {
             return Err(ContractError::FreeLimitExceeded {});
         };
 

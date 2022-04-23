@@ -123,19 +123,19 @@ where
 
         let _minter = self.minter.load(deps.storage)?;
 
-        let can_mint = if token_minted.count < 1000 && balance < 2 {
+        let can_mint = if token_minted.count < 2 && balance < 1 {
             match fund.amount.u128() {
                 130000 => msg.token_num == String::from("a"),
                 125000 => msg.token_num == String::from("b"),
                 _ => false,
             }
-        } else if balance < 4 && token_minted.count < 3000 {
+        } else if balance < 2 && token_minted.count < 4 {
             match fund.amount.u128() {
                 150000 => true,
                 145000 => msg.token_num == String::from("b"),
                 140000 => msg.token_num == String::from("c"),
                 135000 => msg.token_num == String::from("d"),
-                13000 => msg.token_num == String::from("e"),
+                130000 => msg.token_num == String::from("e"),
                 _ => false,
             }
         } else {
@@ -172,6 +172,7 @@ where
         Ok(Response::new()
             .add_attribute("action", "mint")
             .add_attribute("minter", info.sender)
+            .add_attribute("owner", msg.owner)
             .add_attribute("token_id", token_id))
     }
 }

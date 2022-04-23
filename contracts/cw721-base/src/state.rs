@@ -28,6 +28,7 @@ pub struct Metadata {
     pub animation_url: Option<String>,
     pub youtube_url: Option<String>,
     // royalty info
+	/// royalties are owed on this token if it is Some
     pub royalty_percentage: Option<u64>,
     pub royalty_payment_address: Option<String>,
 }
