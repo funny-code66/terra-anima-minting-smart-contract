@@ -106,9 +106,12 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         &self,
         deps: DepsMut,
         _env: Env,
-        _info: MessageInfo,
+        info: MessageInfo,
         _uri: String,
     ) -> Result<Response, ContractError> {
+        if info.sender != self.minter.load(deps.storage)? {
+            return Err(ContractError::NotMinter {});
+        }
         self.base_uri.save(deps.storage, &_uri)?;
 
         Ok(Response::new()
@@ -120,9 +123,12 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         &self,
         deps: DepsMut,
         _env: Env,
-        _info: MessageInfo,
+        info: MessageInfo,
         art_reveal: bool,
     ) -> Result<Response, ContractError> {
+        if info.sender != self.minter.load(deps.storage)? {
+            return Err(ContractError::NotMinter {});
+        }
         self.is_on_reveal.save(deps.storage, &art_reveal)?;
 
         Ok(Response::new()
@@ -133,7 +139,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
     fn execute_free_mint(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         msg: FreeMintMsg<Extension>,
     ) -> Result<Response, ContractError> {
@@ -142,8 +148,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             .may_load(deps.storage)?
             .unwrap_or_default();
 
-        let minter = self.minter.load(deps.storage)?;
-        if info.sender != minter {
+        if info.sender != self.minter.load(deps.storage)? {
             return Err(ContractError::NotMinter {});
         }
 
@@ -209,7 +214,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
     fn execute_add_whitelist(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         member: String,
     ) -> Result<Response, ContractError> {
@@ -226,7 +231,7 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
     fn execute_remove_whitelist(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         member: String,
     ) -> Result<Response, ContractError> {
@@ -243,11 +248,14 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
     fn execute_add_extension(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         token_id: String,
         ext: Extension,
     ) -> Result<Response, ContractError> {
+        if info.sender != self.minter.load(deps.storage)? {
+            return Err(ContractError::NotMinter {});
+        }
         self.extensions
             .save(deps.storage, &Addr::unchecked(token_id.clone()), &ext)?;
 

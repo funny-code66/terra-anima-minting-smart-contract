@@ -33,7 +33,7 @@ where
         &self,
         _deps: DepsMut,
         _env: Env,
-        _info: MessageInfo,
+        info: MessageInfo,
         base_uri: String,
     ) -> Result<Response, ContractError>;
 
@@ -41,14 +41,14 @@ where
         &self,
         _deps: DepsMut,
         _env: Env,
-        _info: MessageInfo,
+        info: MessageInfo,
         art_reveal: bool,
     ) -> Result<Response, ContractError>;
 
     fn execute_free_mint(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         msg: FreeMintMsg<T>,
     ) -> Result<Response, ContractError>;
@@ -63,7 +63,7 @@ where
     fn execute_add_whitelist(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         member: String,
     ) -> Result<Response, ContractError>;
@@ -71,7 +71,7 @@ where
     fn execute_remove_whitelist(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         member: String,
     ) -> Result<Response, ContractError>;
@@ -79,7 +79,7 @@ where
     fn execute_add_extension(
         &self,
         deps: DepsMut,
-        env: Env,
+        _env: Env,
         info: MessageInfo,
         token_id: String,
         ext: T,
