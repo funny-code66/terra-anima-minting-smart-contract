@@ -66,7 +66,14 @@ where
     T: Serialize + DeserializeOwned + Clone + Default,
 {
     fn default() -> Self {
-        Self::new("nft_info", "minter", "0", "", "tokens", "tokens__owner")
+        Self::new(
+            "nft_info",
+            "minter",
+            "token_count",
+            "operators",
+            "tokens",
+            "tokens__owner",
+        )
     }
 }
 
@@ -88,15 +95,15 @@ where
         Self {
             contract_info: Item::new(contract_key),
             minter: Item::new(minter_key),
-            cw3_signature: Map::new(""),
-            whitelist: Map::new(""),
+            cw3_signature: Map::new("cw3_signature"),
+            whitelist: Map::new("whitelist"),
             token_count: Item::new(token_count_key),
             operators: Map::new(operator_key),
             tokens: IndexedMap::new(tokens_key, indexes),
             _custom_response: PhantomData,
-            is_on_reveal: Item::new("true"),
-            freemint_count: Item::new("0"),
-            wallet_balance: Map::new(""),
+            is_on_reveal: Item::new("is_on_reveal"),
+            freemint_count: Item::new("freemint_count"),
+            wallet_balance: Map::new("wallet_balance"),
         }
     }
 
