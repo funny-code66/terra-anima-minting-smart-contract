@@ -70,7 +70,7 @@ where
                 token_id,
                 msg,
             } => self.send_nft(deps, env, info, contract, token_id, msg),
-            _ => panic!("Cannot recognize execute request"),
+            _ => Err(ContractError::CannotExecuteMsg {}),
         }
     }
 }

@@ -29,4 +29,7 @@ pub enum ContractError {
 
     #[error("Cannot get extension")]
     CannotGetExtension {},
+
+    #[error("Cannot execute your message, make sure if func exists")]
+    CannotExecuteMsg {},
 }
