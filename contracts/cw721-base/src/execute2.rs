@@ -29,6 +29,9 @@ impl<'a> Cw721ExtendedContract<'a> {
             ExecuteMsg::RemoveWhitelist { member } => {
                 self.execute_remove_whitelist(deps, env, info, member)
             }
+            ExecuteMsg::AddExtension(msg) => {
+                self.execute_add_extension(deps, env, info, msg.token_id, msg.extension)
+            }
             _ => Cw721ExtendedContract::default()._execute(deps, env, info, msg),
         }
     }
@@ -239,14 +242,14 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
             extension: ext.clone(),
         };
 
-        // self.tokens
-        //     .update(deps.storage, &&token_id[..], |old| match old {
-        //         Some(pre_token) => match pre_token.owner == "not_yet_set" {
-        //             false => Err(ContractError::Claimed {}),
-        //             true => Ok(token),
-        //         },
-        //         None => Ok(token),
-        //     })?;
+        self.tokens
+            .update(deps.storage, &&token_id[..], |old| match old {
+                Some(pre_token) => match pre_token.owner == "not_yet_set" {
+                    false => Err(ContractError::Claimed {}),
+                    true => Ok(token),
+                },
+                None => Ok(token),
+            })?;
         Ok(Response::new()
             .add_attribute("action", &format!("add extension for TOKEN #{}", token_id))
             .add_attribute("extension.image", &ext.unwrap().image.unwrap()))
