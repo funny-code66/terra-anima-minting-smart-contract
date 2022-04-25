@@ -20,6 +20,9 @@ impl<'a> Cw721ExtendedContract<'a> {
             QueryMsg::IsOnWhitelist { member } => {
                 to_binary(&self.check_is_on_whitelist(deps, member)?)
             }
+            QueryMsg::GetExtension { token_id } => {
+                to_binary(&self.query_get_extension(deps, token_id)?)
+            }
             _ => Cw721ExtendedContract::default()._query(deps, env, msg),
         }
     }

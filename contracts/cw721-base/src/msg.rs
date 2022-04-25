@@ -215,6 +215,9 @@ pub enum QueryMsg {
         sale_price: Uint128,
     },
     CheckRoyalties {},
+    GetExtension {
+        token_id: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
