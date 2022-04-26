@@ -125,6 +125,13 @@ where
             .range(deps.storage, start, None, Order::Ascending)
             .take(limit)
             .map(|item| item.map(|(k, _)| String::from_utf8_lossy(&k).to_string()))
+            .filter(|ele| {
+                self.tokens
+                    .load(deps.storage, ele.as_ref().unwrap())
+                    .unwrap()
+                    .owner
+                    != "not_yet_set"
+            })
             .collect();
         Ok(TokensResponse { tokens: tokens? })
     }
@@ -137,20 +144,23 @@ where
         include_expired: bool,
     ) -> StdResult<AllNftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
+        let is_on_reveal = self.is_on_reveal.load(deps.storage)?;
+
         Ok(AllNftInfoResponse {
             access: OwnerOfResponse {
                 owner: info.owner.to_string(),
                 approvals: humanize_approvals(&env.block, &info, include_expired),
             },
-            info: match info.owner == "not_yet_set" {
-                false => NftInfoResponse {
+            info: if is_on_reveal && info.owner != "not_yet_set" {
+                NftInfoResponse {
                     token_uri: info.token_uri,
                     extension: info.extension,
-                },
-                true => NftInfoResponse {
+                }
+            } else {
+                NftInfoResponse {
                     token_uri: Some("not_yet_set".into()),
                     extension: T::default(),
-                },
+                }
             },
         })
     }
