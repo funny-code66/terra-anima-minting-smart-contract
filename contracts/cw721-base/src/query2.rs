@@ -31,8 +31,8 @@ impl<'a> Cw721ExtendedContract<'a> {
 impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
     fn query_royalties_info(
         &self,
-        deps: Deps,
-        token_id: String,
+        _deps: Deps,
+        _token_id: String,
         sale_price: Uint128,
     ) -> StdResult<RoyaltiesInfoResponse> {
         let percentage = Decimal::percent(ROYALTY_PERCENTAGE);

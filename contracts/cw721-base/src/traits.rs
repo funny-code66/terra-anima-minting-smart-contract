@@ -84,8 +84,8 @@ where
 {
     fn query_royalties_info(
         &self,
-        deps: Deps,
-        token_id: String,
+        _deps: Deps,
+        _token_id: String,
         sale_price: Uint128,
     ) -> StdResult<RoyaltiesInfoResponse>;
 
