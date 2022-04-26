@@ -24,12 +24,7 @@ pub mod entry {
 
     // This makes a conscious choice on the various generics used by the contract
     #[entry_point]
-    pub fn migrate(
-        _deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-        _msg: MigrateMsg,
-    ) -> StdResult<Response> {
+    pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
         Ok(Response::default())
     }
 
