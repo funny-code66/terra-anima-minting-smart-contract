@@ -15,6 +15,18 @@ pub enum ContractError {
     #[error("Cannot set approval that is already expired")]
     Expired {},
 
+    #[error("Provided Fund Mismatch")]
+    FundMismatch {},
+
+    #[error("Wallet balance limit exceeded")]
+    WalletLimitExceeded {},
+
+    #[error("Presale Mint limit exceeded")]
+    PresaleLimitExceeded {},
+
+    #[error("All tokens sold out")]
+    SoldOut {},
+
     #[error("Free Mint limit exceeded")]
     FreeLimitExceeded {},
 
@@ -23,6 +35,9 @@ pub enum ContractError {
 
     #[error("Not a signer")]
     NotSigner {},
+
+    #[error("Not on whitelist")]
+    NotWhitelist {},
 
     #[error("Not all signed")]
     NotAllSigned {},

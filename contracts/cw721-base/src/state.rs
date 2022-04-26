@@ -3,7 +3,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::marker::PhantomData;
 
-use cosmwasm_std::{Addr, BlockInfo, Empty, StdResult, Storage};
+use cosmwasm_std::{Addr, BlockInfo, Empty, StdResult, Storage, Timestamp};
 
 use cw721::{ContractInfoResponse, CustomMsg, Cw721, Expiration};
 use cw_storage_plus::{Index, IndexList, IndexedMap, Item, Map, MultiIndex};
@@ -49,6 +49,7 @@ where
     pub whitelist: Map<'a, &'a Addr, bool>,
     pub freemint_count: Item<'a, u64>,
     pub wallet_balance: Map<'a, &'a Addr, u64>,
+    pub time_deployed: Item<'a, Timestamp>,
 
     pub(crate) _custom_response: PhantomData<C>,
 }
@@ -104,6 +105,7 @@ where
             is_on_reveal: Item::new("is_on_reveal"),
             freemint_count: Item::new("freemint_count"),
             wallet_balance: Map::new("wallet_balance"),
+            time_deployed: Item::new("time_deployed"),
         }
     }
 

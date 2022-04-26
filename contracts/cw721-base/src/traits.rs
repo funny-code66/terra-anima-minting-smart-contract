@@ -105,4 +105,5 @@ where
 
     fn check_is_on_whitelist(&self, deps: Deps, member: String)
         -> StdResult<IsOnWhitelistResponse>;
+    fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse>;
 }

@@ -23,7 +23,7 @@ where
     pub fn instantiate(
         &self,
         deps: DepsMut,
-        _env: Env,
+        env: Env,
         _info: MessageInfo,
         msg: InstantiateMsg,
     ) -> StdResult<Response<C>> {
@@ -37,6 +37,7 @@ where
         let minter = deps.api.addr_validate(&msg.minter)?;
 
         self.minter.save(deps.storage, &minter)?;
+        self.time_deployed.save(deps.storage, &env.block.time)?;
         Ok(Response::default())
     }
 
@@ -122,15 +123,23 @@ where
             },
         )?;
 
-        let can_mint = if token_minted.count < 2 && balance < 1 && get_whitelist.is_on_whitelist {
+        let get_presale: IsOnPresaleResponse = deps
+            .querier
+            .query_wasm_smart(env.contract.address.clone(), &QueryMsg::IsOnPresale {})?;
+
+        let can_mint = if get_presale.flag
+            && token_minted.count < 2
+            && balance < 1
+            && get_whitelist.is_on_whitelist
+        {
             match fund.amount.u128() {
                 130000 => msg.token_num == String::from("a"),
                 125000 => msg.token_num == String::from("b"),
                 _ => false,
             }
-        } else if balance < 2 && token_minted.count < 4 {
+        } else if !get_presale.flag && balance < 2 && token_minted.count < 4 {
             match fund.amount.u128() {
-                150000 => true,
+                150000 => msg.token_num == String::from("a"),
                 145000 => msg.token_num == String::from("b"),
                 140000 => msg.token_num == String::from("c"),
                 135000 => msg.token_num == String::from("d"),
@@ -142,7 +151,23 @@ where
         };
 
         if !can_mint {
-            return Err(ContractError::Unauthorized {});
+            if get_presale.flag && token_minted.count >= 2 {
+                return Err(ContractError::PresaleLimitExceeded {});
+            } else if get_presale.flag && balance >= 2 {
+                return Err(ContractError::WalletLimitExceeded {});
+            } else if get_presale.flag && !get_whitelist.is_on_whitelist {
+                return Err(ContractError::NotWhitelist {});
+            } else if get_presale.flag {
+                return Err(ContractError::FundMismatch {});
+            } else if !get_presale.flag && token_minted.count >= 4 {
+                return Err(ContractError::SoldOut {});
+            } else if !get_presale.flag && balance >= 2 {
+                return Err(ContractError::WalletLimitExceeded {});
+            } else if !get_presale.flag {
+                return Err(ContractError::FundMismatch {});
+            } else {
+                return Err(ContractError::Unauthorized {});
+            }
         };
 
         // if info.sender != minter {

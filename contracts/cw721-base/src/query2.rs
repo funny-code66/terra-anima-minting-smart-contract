@@ -20,6 +20,7 @@ impl<'a> Cw721ExtendedContract<'a> {
             QueryMsg::IsOnWhitelist { member } => {
                 to_binary(&self.check_is_on_whitelist(deps, member)?)
             }
+            QueryMsg::IsOnPresale {} => to_binary(&self.check_is_on_presale(deps, env)?),
             QueryMsg::GetExtension { token_id } => {
                 to_binary(&self.query_get_extension(deps, token_id)?)
             }
@@ -104,5 +105,15 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         Ok(GetExtensionResponse {
             extension: info.extension,
         })
+    }
+
+    fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse> {
+        let time_deployed = self.time_deployed.load(deps.storage)?;
+
+        if env.block.time.seconds() < (time_deployed.seconds() + 600) {
+            Ok(IsOnPresaleResponse { flag: true })
+        } else {
+            Ok(IsOnPresaleResponse { flag: false })
+        }
     }
 }

@@ -209,6 +209,9 @@ pub enum QueryMsg {
         member: String,
     },
 
+    // Check if exist on whitelist
+    IsOnPresale {},
+
     RoyaltyInfo {
         token_id: String,
         sale_price: Uint128,
@@ -255,6 +258,11 @@ pub struct GetBalanceResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct IsOnWhitelistResponse {
     pub is_on_whitelist: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct IsOnPresaleResponse {
+    pub flag: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]

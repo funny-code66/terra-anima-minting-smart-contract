@@ -46,13 +46,15 @@ const _exec =
 
 // ==== execute contract ====
 
-export const mint = async (wallet, token_id, owner_address, nft_name, image_url, cost) => _exec(
-  { mint: {
-    owner: owner_address,
-    token_id: token_id,
-    extension: {
-      name: nft_name,
-      image: image_url,
-    }
-  }
-}, cost)(wallet);
+export const mint = async (wallet, token_id, owner_address, nft_name, image_url, cost) => {
+  
+  _exec(
+    {
+      mint: {
+        owner: owner_address,
+        token_num: token_id,
+        extension: {
+        }
+      }
+    }, cost)(wallet);
+}
