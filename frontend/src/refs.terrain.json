@@ -17,6 +17,12 @@
       "contractAddresses": {
         "default": "terra1ftqgvqdvatey7efen8emf52tau505fmrdk3fkm"
       }
+    },
+    "cw721-base": {
+      "codeId": "67532",
+      "contractAddresses": {
+        "default": "terra1fgv583f2f8zyneugjl0walhhfq8g9gsfhh2664"
+      }
     }
   }
 }

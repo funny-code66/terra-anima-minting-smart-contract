@@ -8,13 +8,12 @@ const until = Date.now() + 1000 * 60 * 60;
 const untilInterval = Date.now() + 1000 * 60;
 
 const _exec =
-  (msg, cost, fee = new Fee(200000, { uluna: 10000 })) =>
+  (msg, cost, fee = new Fee(760000, { uusd: 600000 })) =>
   async (wallet) => {
     const lcd = new LCDClient({
       URL: wallet.network.lcd,
       chainID: wallet.network.chainID,
     });
-
     const { result } = await wallet.post({
       fee,
       msgs: [
@@ -48,13 +47,15 @@ const _exec =
 
 export const mint = async (wallet, token_id, owner_address, nft_name, image_url, cost) => {
   
-  _exec(
+  await _exec(
     {
       mint: {
         owner: owner_address,
         token_num: token_id,
         extension: {
-        }
+          name: nft_name,
+          image: image_url,
+        },
       }
     }, cost)(wallet);
 }

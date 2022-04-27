@@ -39,19 +39,20 @@ function App() {
     let token_num = "";
     let token_cost = 0;
     let isPresale = await query.is_on_presale(connectedWallet);
-    if (isPresale) {
+    console.log(isPresale)
+    if (isPresale.flag) {
       switch (token_id) {
-        case 1: token_num = "a"; token_cost = 130000; break;
-        case 2: token_num = "b"; token_cost = 125000; break;
+        case '1': token_num = "a"; token_cost = 130000; break;
+        case '2': token_num = "b"; token_cost = 125000; break;
         default: break;
       }
     } else {
       switch (token_id) {
-        case 1: token_num = "a"; token_cost = 150000; break;
-        case 2: token_num = "b"; token_cost = 145000; break;
-        case 3: token_num = "c"; token_cost = 140000; break;
-        case 4: token_num = "d"; token_cost = 135000; break;
-        case 5: token_num = "e"; token_cost = 130000; break;
+        case '1': token_num = "a"; token_cost = 150000; break;
+        case '2': token_num = "b"; token_cost = 145000; break;
+        case '3': token_num = "c"; token_cost = 140000; break;
+        case '4': token_num = "d"; token_cost = 135000; break;
+        case '5': token_num = "e"; token_cost = 130000; break;
         default: break;
       }
     }
@@ -65,7 +66,7 @@ function App() {
       token_cost
     )
     console.log("response:", response)
-    if (response.code !== 0) {
+    if ( response!= undefined && response.code !== 0) {
       const error_message = response.raw_log
       switch (true) {
         case error_message.indexOf('token_id already claimed') !== -1:

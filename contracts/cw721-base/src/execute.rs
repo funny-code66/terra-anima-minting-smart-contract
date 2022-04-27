@@ -153,7 +153,7 @@ where
         if !can_mint {
             if get_presale.flag && token_minted.count >= 2 {
                 return Err(ContractError::PresaleLimitExceeded {});
-            } else if get_presale.flag && balance >= 2 {
+            } else if get_presale.flag && balance >= 1 {
                 return Err(ContractError::WalletLimitExceeded {});
             } else if get_presale.flag && !get_whitelist.is_on_whitelist {
                 return Err(ContractError::NotWhitelist {});
