@@ -5,7 +5,7 @@
         "fee": {
           "gasLimit": 5000000,
           "amount": {
-            "uluna": 1000000
+            "uusd": 1000000
           }
         }
       },
@@ -13,7 +13,7 @@
         "fee": {
           "gasLimit": 2000000,
           "amount": {
-            "uluna": 1000000
+            "uusd": 1000000
           }
         },
         "instantiateMsg": {

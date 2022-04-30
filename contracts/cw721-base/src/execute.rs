@@ -91,11 +91,11 @@ where
     ) -> Result<Response<C>, ContractError> {
         let mut fund = Coin {
             amount: Uint128::from(0u128),
-            denom: String::from("luna"),
+            denom: String::from("uusd"),
         };
 
         for coin in info.clone().funds {
-            if coin.denom == "uluna" {
+            if coin.denom == "uusd" {
                 fund = Coin {
                     amount: fund.amount + coin.amount,
                     denom: coin.denom,
