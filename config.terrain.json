@@ -17,9 +17,23 @@
           }
         },
         "instantiateMsg": {
-          "name":"Invoker NFT",
-          "symbol":"IVK",
-          "minter":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg"
+          "name":"ANIMA NFT",
+          "symbol":"ANIMA",
+          "minter":"terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg",
+          "max_voting_period": {
+            "time": 604800
+          },
+          "required_weight": 2,
+          "voters": [
+            {
+              "addr": "terra109rgfl6x8v6k29dtfpc4kxq9tl08lly73wgjzg",
+              "weight": 1
+            },
+            {
+              "addr": "terra10hcrj0tlum8nkk2apz3v6y0vrdd8k9murs9vfy",
+              "weight": 1
+            }
+          ]
         }
       }
     }

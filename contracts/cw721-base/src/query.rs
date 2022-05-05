@@ -32,11 +32,11 @@ where
 
     fn nft_info(&self, deps: Deps, token_id: String) -> StdResult<NftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
-        let is_on_reveal: bool = self
-            .is_on_reveal
-            .may_load(deps.storage)?
-            .unwrap_or_default();
-        match info.owner == "not_yet_set" || !is_on_reveal {
+        // let is_on_reveal: bool = self
+        //     .is_on_reveal
+        //     .may_load(deps.storage)?
+        //     .unwrap_or_default();
+        match info.owner == "not_yet_set" /* || !is_on_reveal */ {
             false => Ok(NftInfoResponse {
                 token_uri: info.token_uri,
                 extension: info.extension,
@@ -148,17 +148,19 @@ where
         include_expired: bool,
     ) -> StdResult<AllNftInfoResponse<T>> {
         let info = self.tokens.load(deps.storage, &token_id)?;
-        let is_on_reveal: bool = self
-            .is_on_reveal
-            .may_load(deps.storage)?
-            .unwrap_or_default();
+        // let is_on_reveal: bool = self
+        //     .is_on_reveal
+        //     .may_load(deps.storage)?
+        //     .unwrap_or_default();
 
         Ok(AllNftInfoResponse {
             access: OwnerOfResponse {
                 owner: info.owner.to_string(),
                 approvals: humanize_approvals(&env.block, &info, include_expired),
             },
-            info: if is_on_reveal && info.owner != "not_yet_set" {
+            info: if
+            /* is_on_reveal && */
+            info.owner != "not_yet_set" {
                 NftInfoResponse {
                     token_uri: info.token_uri,
                     extension: info.extension,

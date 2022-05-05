@@ -138,58 +138,52 @@ where
         )?;
         let balance = balance_response.balance;
 
-        let _minter = self.minter.load(deps.storage)?;
+        // let _minter = self.minter.load(deps.storage)?;
 
-        let get_whitelist: IsOnWhitelistResponse = deps.querier.query_wasm_smart(
-            env.contract.address.clone(),
-            &QueryMsg::IsOnWhitelist {
-                member: info.sender.to_string(),
-            },
-        )?;
+        // let get_whitelist: IsOnWhitelistResponse = deps.querier.query_wasm_smart(
+        //     env.contract.address.clone(),
+        //     &QueryMsg::IsOnWhitelist {
+        //         member: info.sender.to_string(),
+        //     },
+        // )?;
 
-        let get_presale: IsOnPresaleResponse = deps
-            .querier
-            .query_wasm_smart(env.contract.address.clone(), &QueryMsg::IsOnPresale {})?;
+        // let get_presale: IsOnPresaleResponse = deps
+        //     .querier
+        //     .query_wasm_smart(env.contract.address.clone(), &QueryMsg::IsOnPresale {})?;
 
-        let can_mint = if get_presale.flag
-            && token_minted.count < 2
-            && balance < 1
-            && get_whitelist.is_on_whitelist
-        {
-            match fund.amount.u128() {
-                130000 => msg.token_num == String::from("a"),
-                125000 => {
-                    msg.token_num == String::from("b")
-                        || msg.token_num == String::from("c")
-                        || msg.token_num == String::from("d")
-                }
-                _ => false,
-            }
-        } else if !get_presale.flag && balance < 2 && token_minted.count < 4 {
-            match fund.amount.u128() {
-                150000 => msg.token_num == String::from("a"),
-                140000 => msg.token_num == String::from("c"),
-                130000 => msg.token_num == String::from("e"),
-                _ => false,
-            }
-        } else {
-            false
-        };
+        // let can_mint = if get_presale.flag
+        //     && token_minted.count < 2
+        //     && balance < 1
+        //     && get_whitelist.is_on_whitelist
+        // {
+        //     match fund.amount.u128() {
+        //         130000 => msg.token_num == String::from("a"),
+        //         125000 => {
+        //             msg.token_num == String::from("b")
+        //                 || msg.token_num == String::from("c")
+        //                 || msg.token_num == String::from("d")
+        //         }
+        //         _ => false,
+        //     }
+        // } else if !get_presale.flag && balance < 2 && token_minted.count < 4 {
+        //     match fund.amount.u128() {
+        //         150000 => msg.token_num == String::from("a"),
+        //         140000 => msg.token_num == String::from("c"),
+        //         130000 => msg.token_num == String::from("e"),
+        //         _ => false,
+        //     }
+        // } else {
+        //     false
+        // };
+
+        let can_mint = token_minted.count < 100 && balance < 1 && fund.amount.u128() == 200000000;
 
         if !can_mint {
-            if get_presale.flag && token_minted.count >= 2 {
-                return Err(ContractError::PresaleLimitExceeded {});
-            } else if get_presale.flag && balance >= 1 {
-                return Err(ContractError::WalletLimitExceeded {});
-            } else if get_presale.flag && !get_whitelist.is_on_whitelist {
-                return Err(ContractError::NotWhitelist {});
-            } else if get_presale.flag {
-                return Err(ContractError::FundMismatch {});
-            } else if !get_presale.flag && token_minted.count >= 4 {
+            if token_minted.count >= 100 {
                 return Err(ContractError::SoldOut {});
-            } else if !get_presale.flag && balance >= 2 {
+            } else if balance >= 1 {
                 return Err(ContractError::WalletLimitExceeded {});
-            } else if !get_presale.flag {
+            } else if fund.amount.u128() != 200000000 {
                 return Err(ContractError::FundMismatch {});
             } else {
                 return Err(ContractError::Unauthorized {});

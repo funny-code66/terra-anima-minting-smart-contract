@@ -29,51 +29,51 @@ pub trait Cw721ExtendedExecute<T>
 where
     T: Serialize + DeserializeOwned + Clone + Default,
 {
-    fn execute_withdraw(
-        &self,
-        _deps: DepsMut,
-        _env: Env,
-        _info: MessageInfo,
-    ) -> Result<Response, ContractError>;
+    // fn execute_withdraw(
+    //     &self,
+    //     _deps: DepsMut,
+    //     _env: Env,
+    //     _info: MessageInfo,
+    // ) -> Result<Response, ContractError>;
 
-    fn execute_set_art_reveal(
-        &self,
-        _deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        art_reveal: bool,
-    ) -> Result<Response, ContractError>;
+    // fn execute_set_art_reveal(
+    //     &self,
+    //     _deps: DepsMut,
+    //     _env: Env,
+    //     info: MessageInfo,
+    //     art_reveal: bool,
+    // ) -> Result<Response, ContractError>;
 
-    fn execute_free_mint(
-        &self,
-        deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        msg: FreeMintMsg<T>,
-    ) -> Result<Response, ContractError>;
+    // fn execute_free_mint(
+    //     &self,
+    //     deps: DepsMut,
+    //     _env: Env,
+    //     info: MessageInfo,
+    //     msg: FreeMintMsg<T>,
+    // ) -> Result<Response, ContractError>;
 
-    fn execute_sign(
-        &self,
-        deps: DepsMut,
-        env: Env,
-        info: MessageInfo,
-    ) -> Result<Response, ContractError>;
+    // fn execute_sign(
+    //     &self,
+    //     deps: DepsMut,
+    //     env: Env,
+    //     info: MessageInfo,
+    // ) -> Result<Response, ContractError>;
 
-    fn execute_add_whitelist(
-        &self,
-        deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        member: String,
-    ) -> Result<Response, ContractError>;
+    // fn execute_add_whitelist(
+    //     &self,
+    //     deps: DepsMut,
+    //     _env: Env,
+    //     info: MessageInfo,
+    //     member: String,
+    // ) -> Result<Response, ContractError>;
 
-    fn execute_remove_whitelist(
-        &self,
-        deps: DepsMut,
-        _env: Env,
-        info: MessageInfo,
-        member: String,
-    ) -> Result<Response, ContractError>;
+    // fn execute_remove_whitelist(
+    //     &self,
+    //     deps: DepsMut,
+    //     _env: Env,
+    //     info: MessageInfo,
+    //     member: String,
+    // ) -> Result<Response, ContractError>;
 
     fn execute_add_extension(
         &self,
@@ -135,7 +135,7 @@ where
 
     fn check_royalties(&self, _deps: Deps) -> StdResult<CheckRoyaltiesResponse>;
 
-    fn query_is_on_reveal(&self, _deps: Deps) -> StdResult<IsOnRevealResponse>;
+    // fn query_is_on_reveal(&self, _deps: Deps) -> StdResult<IsOnRevealResponse>;
 
     fn query_get_token_uri(&self, _deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse>;
 
@@ -147,9 +147,9 @@ where
 
     fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse>;
 
-    fn check_is_on_whitelist(&self, deps: Deps, member: String)
-        -> StdResult<IsOnWhitelistResponse>;
-    fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse>;
+    // fn check_is_on_whitelist(&self, deps: Deps, member: String)
+    //     -> StdResult<IsOnWhitelistResponse>;
+    // fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse>;
 
     fn query_threshold(&self, deps: Deps) -> StdResult<ThresholdResponse>;
 

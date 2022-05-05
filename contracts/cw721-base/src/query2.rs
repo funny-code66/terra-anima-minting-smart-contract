@@ -19,15 +19,15 @@ impl<'a> Cw721ExtendedContract<'a> {
                 sale_price,
             } => to_binary(&self.query_royalties_info(deps, token_id, sale_price)?),
             QueryMsg::CheckRoyalties {} => to_binary(&self.check_royalties(deps)?),
-            QueryMsg::IsOnReveal {} => to_binary(&self.query_is_on_reveal(deps)?),
-            QueryMsg::GetTokenUri { token_id } => {
-                to_binary(&self.query_get_token_uri(deps, token_id)?)
-            }
+            // QueryMsg::IsOnReveal {} => to_binary(&self.query_is_on_reveal(deps)?),
+            // QueryMsg::GetTokenUri { token_id } => {
+            //     to_binary(&self.query_get_token_uri(deps, token_id)?)
+            // }
             QueryMsg::GetBalance { owner } => to_binary(&self.query_get_balance(deps, owner)?),
-            QueryMsg::IsOnWhitelist { member } => {
-                to_binary(&self.check_is_on_whitelist(deps, member)?)
-            }
-            QueryMsg::IsOnPresale {} => to_binary(&self.check_is_on_presale(deps, env)?),
+            // QueryMsg::IsOnWhitelist { member } => {
+            //     to_binary(&self.check_is_on_whitelist(deps, member)?)
+            // }
+            // QueryMsg::IsOnPresale {} => to_binary(&self.check_is_on_presale(deps, env)?),
             QueryMsg::GetExtension { token_id } => {
                 to_binary(&self.query_get_extension(deps, token_id)?)
             }
@@ -81,27 +81,29 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         })
     }
 
-    fn query_is_on_reveal(&self, deps: Deps) -> StdResult<IsOnRevealResponse> {
-        let res: bool = self
-            .is_on_reveal
-            .may_load(deps.storage)?
-            .unwrap_or_default();
+    // fn query_is_on_reveal(&self, deps: Deps) -> StdResult<IsOnRevealResponse> {
+    //     let res: bool = self
+    //         .is_on_reveal
+    //         .may_load(deps.storage)?
+    //         .unwrap_or_default();
 
-        Ok(IsOnRevealResponse { is_on_reveal: res })
-    }
+    //     Ok(IsOnRevealResponse { is_on_reveal: res })
+    // }
 
-    fn query_get_token_uri(&self, deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
-        let is_on_reveal = self
-            .is_on_reveal
-            .may_load(deps.storage)?
-            .unwrap_or_default();
+    fn query_get_token_uri(&self, _deps: Deps, token_id: String) -> StdResult<GetTokenUriResponse> {
+        // let is_on_reveal = self
+        //     .is_on_reveal
+        //     .may_load(deps.storage)?
+        //     .unwrap_or_default();
 
-        let res = match is_on_reveal {
-            true => format!("{}{}.json", BASE_URI, token_id),
-            false => String::from("NOT_YET_REVEALED"),
-        };
+        // let res = match is_on_reveal {
+        //     true => format!("{}{}.json", BASE_URI, token_id),
+        //     false => String::from("NOT_YET_REVEALED"),
+        // };
 
-        Ok(GetTokenUriResponse { token_uri: res })
+        Ok(GetTokenUriResponse {
+            token_uri: format!("{}{}.json", BASE_URI, token_id),
+        })
     }
 
     fn query_get_balance(&self, deps: Deps, owner: String) -> StdResult<GetBalanceResponse> {
@@ -112,19 +114,19 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         Ok(GetBalanceResponse { balance: res })
     }
 
-    fn check_is_on_whitelist(
-        &self,
-        deps: Deps,
-        member: String,
-    ) -> StdResult<IsOnWhitelistResponse> {
-        let res = self
-            .whitelist
-            .may_load(deps.storage, &Addr::unchecked(member))?
-            .unwrap_or(false);
-        Ok(IsOnWhitelistResponse {
-            is_on_whitelist: res,
-        })
-    }
+    // fn check_is_on_whitelist(
+    //     &self,
+    //     deps: Deps,
+    //     member: String,
+    // ) -> StdResult<IsOnWhitelistResponse> {
+    //     let res = self
+    //         .whitelist
+    //         .may_load(deps.storage, &Addr::unchecked(member))?
+    //         .unwrap_or(false);
+    //     Ok(IsOnWhitelistResponse {
+    //         is_on_whitelist: res,
+    //     })
+    // }
 
     fn query_get_extension(
         &self,
@@ -137,15 +139,15 @@ impl<'a> Cw721ExtendedQuery<Extension> for Cw721ExtendedContract<'a> {
         })
     }
 
-    fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse> {
-        let time_deployed = self.time_deployed.load(deps.storage)?;
+    // fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse> {
+    //     let time_deployed = self.time_deployed.load(deps.storage)?;
 
-        if env.block.time.seconds() < (time_deployed.seconds() + 600) {
-            Ok(IsOnPresaleResponse { flag: true })
-        } else {
-            Ok(IsOnPresaleResponse { flag: false })
-        }
-    }
+    //     if env.block.time.seconds() < (time_deployed.seconds() + 600) {
+    //         Ok(IsOnPresaleResponse { flag: true })
+    //     } else {
+    //         Ok(IsOnPresaleResponse { flag: false })
+    //     }
+    // }
 
     fn query_threshold(&self, deps: Deps) -> StdResult<ThresholdResponse> {
         let cfg = self.CONFIG.load(deps.storage)?;

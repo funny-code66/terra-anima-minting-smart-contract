@@ -1,4 +1,4 @@
-use crate::threshold::{Threshold, ThresholdResponse};
+use crate::threshold::ThresholdResponse;
 use cosmwasm_std::{Binary, CosmosMsg, Empty, Uint128};
 use cw0::{Duration, Expiration};
 use cw3::Vote;
@@ -83,7 +83,7 @@ pub enum ExecuteMsg<T> {
     Mint(MintMsg<T>),
 
     /// Mint freely to certain wallet / airdrop
-    FreeMint(FreeMintMsg<T>),
+    // FreeMint(FreeMintMsg<T>),
 
     // Withdraw coin to team, pro, treas.
     Withdraw {},
@@ -94,22 +94,22 @@ pub enum ExecuteMsg<T> {
     },
 
     // Set Art reveal.
-    SetArtReveal {
-        art_reveal: bool,
-    },
+    // SetArtReveal {
+    //     art_reveal: bool,
+    // },
 
     // Sign to withdraw (this is multi signature feature)
-    Sign {},
+    // Sign {},
 
     // Add to whitelist
-    AddWhitelist {
-        member: String,
-    },
+    // AddWhitelist {
+    //     member: String,
+    // },
 
     // Remove from whitelist
-    RemoveWhitelist {
-        member: String,
-    },
+    // RemoveWhitelist {
+    //     member: String,
+    // },
 
     // Add extension for token_id
     AddExtension(AddExtensionMsg<T>),
@@ -150,13 +150,13 @@ pub struct MintMsg<T> {
     pub extension: T,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct FreeMintMsg<T> {
-    /// The owner of the newly minter NFT
-    pub owner: String,
-    /// Any custom extension used by this contract
-    pub extension: T,
-}
+// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+// pub struct FreeMintMsg<T> {
+//     /// The owner of the newly minter NFT
+//     pub owner: String,
+//     /// Any custom extension used by this contract
+//     pub extension: T,
+// }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct AddExtensionMsg<T> {
@@ -226,12 +226,12 @@ pub enum QueryMsg {
     Minter {},
 
     // Check if NFT tokenURI is revealed
-    IsOnReveal {},
+    // IsOnReveal {},
 
     // Get token URI according to its id.
-    GetTokenUri {
-        token_id: String,
-    },
+    // GetTokenUri {
+    //     token_id: String,
+    // },
 
     // Get wallet balance
     GetBalance {
@@ -244,13 +244,12 @@ pub enum QueryMsg {
     },
 
     // Check if exist on whitelist
-    IsOnWhitelist {
-        member: String,
-    },
+    // IsOnWhitelist {
+    //     member: String,
+    // },
 
     // Check if exist on whitelist
-    IsOnPresale {},
-
+    // IsOnPresale {},
     RoyaltyInfo {
         token_id: String,
         sale_price: Uint128,
@@ -319,10 +318,10 @@ pub struct CheckRoyaltiesResponse {
     pub royalty_payments: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
-pub struct IsOnRevealResponse {
-    pub is_on_reveal: bool,
-}
+// #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+// pub struct IsOnRevealResponse {
+//     pub is_on_reveal: bool,
+// }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct GetTokenUriResponse {
@@ -334,15 +333,15 @@ pub struct GetBalanceResponse {
     pub balance: u64,
 }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
-pub struct IsOnWhitelistResponse {
-    pub is_on_whitelist: bool,
-}
+// #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+// pub struct IsOnWhitelistResponse {
+//     pub is_on_whitelist: bool,
+// }
 
-#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
-pub struct IsOnPresaleResponse {
-    pub flag: bool,
-}
+// #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+// pub struct IsOnPresaleResponse {
+//     pub flag: bool,
+// }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct GetExtensionResponse<T> {
