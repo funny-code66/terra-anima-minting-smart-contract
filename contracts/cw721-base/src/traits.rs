@@ -1,10 +1,17 @@
+use cw0::Expiration;
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
+use cosmwasm_std::{
+    BlockInfo, CosmosMsg, Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult, Uint128,
+};
+
 use crate::error::*;
 use crate::msg::*;
-use cosmwasm_std::{Deps, DepsMut, Empty, Env, MessageInfo, Response, StdResult, Uint128};
+use crate::state2::*;
+use crate::threshold::ThresholdResponse;
+use cw3::Vote;
 
 // TODO: move this somewhere else... ideally cosmwasm-std
 pub trait CustomMsg: Clone + std::fmt::Debug + PartialEq + JsonSchema {}
@@ -76,6 +83,43 @@ where
         token_id: String,
         ext: T,
     ) -> Result<Response, ContractError>;
+
+    fn execute_propose(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        title: String,
+        description: String,
+        msgs: Vec<CosmosMsg>,
+        // we ignore earliest
+        latest: Option<Expiration>,
+    ) -> Result<Response<Empty>, ContractError>;
+
+    fn execute_vote(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+        vote: Vote,
+    ) -> Result<Response<Empty>, ContractError>;
+
+    fn execute_execute(
+        &self,
+        deps: DepsMut,
+        _env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+    ) -> Result<Response, ContractError>;
+
+    fn execute_close(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+    ) -> Result<Response<Empty>, ContractError>;
 }
 
 pub trait Cw721ExtendedQuery<T>
@@ -106,4 +150,55 @@ where
     fn check_is_on_whitelist(&self, deps: Deps, member: String)
         -> StdResult<IsOnWhitelistResponse>;
     fn check_is_on_presale(&self, deps: Deps, env: Env) -> StdResult<IsOnPresaleResponse>;
+
+    fn query_threshold(&self, deps: Deps) -> StdResult<ThresholdResponse>;
+
+    fn query_proposal(&self, deps: Deps, env: Env, id: u64) -> StdResult<ProposalResponse>;
+
+    fn list_proposals(
+        &self,
+        deps: Deps,
+        env: Env,
+        start_after: Option<u64>,
+        limit: Option<u32>,
+    ) -> StdResult<ProposalListResponse>;
+
+    fn reverse_proposals(
+        &self,
+        deps: Deps,
+        env: Env,
+        start_before: Option<u64>,
+        limit: Option<u32>,
+    ) -> StdResult<ProposalListResponse>;
+
+    fn map_proposals(
+        &self,
+        block: &BlockInfo,
+        item: StdResult<(Vec<u8>, Proposal)>,
+    ) -> StdResult<ProposalResponse>;
+
+    fn map_proposal(
+        &self,
+        block: &BlockInfo,
+        item: StdResult<(u64, Proposal)>,
+    ) -> StdResult<ProposalResponse>;
+
+    fn query_vote(&self, deps: Deps, proposal_id: u64, voter: String) -> StdResult<VoteResponse>;
+
+    fn list_votes(
+        &self,
+        deps: Deps,
+        proposal_id: u64,
+        start_after: Option<String>,
+        limit: Option<u32>,
+    ) -> StdResult<VoteListResponse>;
+
+    fn query_voter(&self, deps: Deps, voter: String) -> StdResult<VoterResponse>;
+
+    fn list_voters(
+        &self,
+        deps: Deps,
+        start_after: Option<String>,
+        limit: Option<u32>,
+    ) -> StdResult<VoterListResponse>;
 }

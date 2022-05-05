@@ -1,10 +1,16 @@
-use cosmwasm_std::{Addr, BankMsg, Coin, CosmosMsg, DepsMut, Env, MessageInfo, Response, Uint128};
-
 use crate::constants::*;
 use crate::error::ContractError;
 use crate::msg::*;
 use crate::state::*;
+use crate::state2::*;
 use crate::traits::*;
+
+use cosmwasm_std::{
+    Addr, BankMsg, Coin, CosmosMsg, DepsMut, Empty, Env, MessageInfo, Response, Uint128,
+};
+use cw0::Expiration;
+use cw3::Vote;
+use std::cmp::Ordering;
 
 const BASE_URI: &str = "ipfs://QmRiLKmhizpnwqpHGeiJnL4G6fsPAxdEdCiDkuJpt7xHPH/";
 
@@ -32,6 +38,21 @@ impl<'a> Cw721ExtendedContract<'a> {
             ExecuteMsg::AddExtension(msg) => {
                 self.execute_add_extension(deps, env, info, msg.token_id, msg.extension)
             }
+            // CW3
+            ExecuteMsg::Propose {
+                title,
+                description,
+                msgs,
+                latest,
+            } => self.execute_propose(deps, env, info, title, description, msgs, latest),
+            ExecuteMsg::Vote { proposal_id, vote } => {
+                self.execute_vote(deps, env, info, proposal_id, vote)
+            }
+            ExecuteMsg::Execute { proposal_id } => {
+                self.execute_execute(deps, env, info, proposal_id)
+            }
+            ExecuteMsg::Close { proposal_id } => self.execute_close(deps, env, info, proposal_id),
+
             _ => Cw721ExtendedContract::default()._execute(deps, env, info, msg),
         }
     }
@@ -253,5 +274,182 @@ impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
         Ok(Response::new()
             .add_attribute("action", &format!("add extension for TOKEN #{}", token_id))
             .add_attribute("extension.image", &ext.unwrap().image.unwrap()))
+    }
+
+    fn execute_propose(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        title: String,
+        description: String,
+        msgs: Vec<CosmosMsg>,
+        // we ignore earliest
+        latest: Option<Expiration>,
+    ) -> Result<Response<Empty>, ContractError> {
+        // only members of the multisig can create a proposal
+        let vote_power = self
+            .VOTERS
+            .may_load(deps.storage, &info.sender)?
+            .ok_or(ContractError::Unauthorized {})?;
+
+        let cfg = self.CONFIG.load(deps.storage)?;
+
+        // max expires also used as default
+        let max_expires = cfg.max_voting_period.after(&env.block);
+        let mut expires = latest.unwrap_or(max_expires);
+        let comp = expires.partial_cmp(&max_expires);
+        if let Some(Ordering::Greater) = comp {
+            expires = max_expires;
+        } else if comp.is_none() {
+            return Err(ContractError::WrongExpiration {});
+        }
+
+        // create a proposal
+        let mut prop = Proposal {
+            title,
+            description,
+            start_height: env.block.height,
+            expires,
+            msgs,
+            status: Status::Open,
+            votes: Votes::yes(vote_power),
+            threshold: cfg.threshold,
+            total_weight: cfg.total_weight,
+        };
+        prop.update_status(&env.block);
+        let id = self.next_id(deps.storage)?;
+        self.PROPOSALS
+            .save(deps.storage, &id.to_string()[..], &prop)?;
+
+        // add the first yes vote from voter
+        let ballot = Ballot {
+            weight: vote_power,
+            vote: Vote::Yes,
+        };
+        self.BALLOTS
+            .save(deps.storage, (&id.to_string()[..], &info.sender), &ballot)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "propose")
+            .add_attribute("sender", info.sender)
+            .add_attribute("proposal_id", id.to_string())
+            .add_attribute("status", format!("{:?}", prop.status)))
+    }
+
+    fn execute_vote(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+        vote: Vote,
+    ) -> Result<Response<Empty>, ContractError> {
+        // only members of the multisig with weight >= 1 can vote
+        let voter_power = self.VOTERS.may_load(deps.storage, &info.sender)?;
+        let vote_power = match voter_power {
+            Some(power) if power >= 1 => power,
+            _ => return Err(ContractError::Unauthorized {}),
+        };
+
+        // ensure proposal exists and can be voted on
+        let mut prop = self
+            .PROPOSALS
+            .load(deps.storage, &proposal_id.to_string()[..])?;
+        if prop.status != Status::Open {
+            return Err(ContractError::NotOpen {});
+        }
+        if prop.expires.is_expired(&env.block) {
+            return Err(ContractError::Expired {});
+        }
+
+        // cast vote if no vote previously cast
+        self.BALLOTS.update(
+            deps.storage,
+            (&proposal_id.to_string()[..], &info.sender),
+            |bal| match bal {
+                Some(_) => Err(ContractError::AlreadyVoted {}),
+                None => Ok(Ballot {
+                    weight: vote_power,
+                    vote,
+                }),
+            },
+        )?;
+
+        // update vote tally
+        prop.votes.add_vote(vote, vote_power);
+        prop.update_status(&env.block);
+        self.PROPOSALS
+            .save(deps.storage, &proposal_id.to_string()[..], &prop)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "vote")
+            .add_attribute("sender", info.sender)
+            .add_attribute("proposal_id", proposal_id.to_string())
+            .add_attribute("status", format!("{:?}", prop.status)))
+    }
+
+    fn execute_execute(
+        &self,
+        deps: DepsMut,
+        _env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+    ) -> Result<Response, ContractError> {
+        // anyone can trigger this if the vote passed
+
+        let mut prop = self
+            .PROPOSALS
+            .load(deps.storage, &proposal_id.to_string()[..])?;
+        // we allow execution even after the proposal "expiration" as long as all vote come in before
+        // that point. If it was approved on time, it can be executed any time.
+        if prop.status != Status::Passed {
+            return Err(ContractError::WrongExecuteStatus {});
+        }
+
+        // set it to executed
+        prop.status = Status::Executed;
+        self.PROPOSALS
+            .save(deps.storage, &proposal_id.to_string()[..], &prop)?;
+
+        // dispatch all proposed messages
+        Ok(Response::new()
+            .add_messages(prop.msgs)
+            .add_attribute("action", "execute")
+            .add_attribute("sender", info.sender)
+            .add_attribute("proposal_id", proposal_id.to_string()))
+    }
+
+    fn execute_close(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        info: MessageInfo,
+        proposal_id: u64,
+    ) -> Result<Response<Empty>, ContractError> {
+        // anyone can trigger this if the vote passed
+
+        let mut prop = self
+            .PROPOSALS
+            .load(deps.storage, &proposal_id.to_string()[..])?;
+        if [Status::Executed, Status::Rejected, Status::Passed]
+            .iter()
+            .any(|x| *x == prop.status)
+        {
+            return Err(ContractError::WrongCloseStatus {});
+        }
+        if !prop.expires.is_expired(&env.block) {
+            return Err(ContractError::NotExpired {});
+        }
+
+        // set it to failed
+        prop.status = Status::Rejected;
+        self.PROPOSALS
+            .save(deps.storage, &proposal_id.to_string()[..], &prop)?;
+
+        Ok(Response::new()
+            .add_attribute("action", "close")
+            .add_attribute("sender", info.sender)
+            .add_attribute("proposal_id", proposal_id.to_string()))
     }
 }

@@ -1,3 +1,4 @@
+use crate::state2::*;
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,7 @@ pub struct Metadata {
 
 pub type Extension = Option<Metadata>;
 
+#[allow(non_snake_case)]
 pub struct Cw721Contract<'a, T, C>
 where
     T: Serialize + DeserializeOwned + Clone + Default,
@@ -50,6 +52,20 @@ where
     pub freemint_count: Item<'a, u64>,
     pub wallet_balance: Map<'a, &'a Addr, u64>,
     pub time_deployed: Item<'a, Timestamp>,
+    #[allow(non_snake_case)]
+    pub CONFIG: Item<'a, Config>,
+    #[allow(non_snake_case)]
+    pub PROPOSAL_COUNT: Item<'a, u64>,
+
+    // multiple-item map
+    #[allow(non_snake_case)]
+    pub BALLOTS: Map<'a, (&'a str, &'a Addr), Ballot>,
+    #[allow(non_snake_case)]
+    pub PROPOSALS: Map<'a, &'a str, Proposal>,
+
+    // multiple-item maps
+    #[allow(non_snake_case)]
+    pub VOTERS: Map<'a, &'a Addr, u64>,
 
     pub(crate) _custom_response: PhantomData<C>,
 }
@@ -106,6 +122,11 @@ where
             freemint_count: Item::new("freemint_count"),
             wallet_balance: Map::new("wallet_balance"),
             time_deployed: Item::new("time_deployed"),
+            CONFIG: Item::new("config"),
+            PROPOSAL_COUNT: Item::new("proposal_count"),
+            BALLOTS: Map::new("votes"),
+            PROPOSALS: Map::new("proposals"),
+            VOTERS: Map::new("voters"),
         }
     }
 
@@ -117,6 +138,12 @@ where
         let val = self.token_count(storage)? + 1;
         self.token_count.save(storage, &val)?;
         Ok(val)
+    }
+
+    pub fn next_id(&self, store: &mut dyn Storage) -> StdResult<u64> {
+        let id: u64 = self.PROPOSAL_COUNT.may_load(store)?.unwrap_or_default() + 1;
+        self.PROPOSAL_COUNT.save(store, &id)?;
+        Ok(id)
     }
 }
 

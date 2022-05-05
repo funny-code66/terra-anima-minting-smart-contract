@@ -6,12 +6,15 @@ pub mod msg;
 mod query;
 mod query2;
 pub mod state;
+pub mod state2;
+mod threshold;
 mod traits;
 
 pub use crate::constants::*;
 pub use crate::error::ContractError;
 pub use crate::msg::*;
 pub use crate::state::*;
+pub use crate::threshold::*;
 
 // This is a simple type to let us handle empty extensions
 
@@ -35,7 +38,7 @@ pub mod entry {
         env: Env,
         info: MessageInfo,
         msg: InstantiateMsg,
-    ) -> StdResult<Response> {
+    ) -> Result<Response, ContractError> {
         let tract = Cw721ExtendedContract::default();
         tract.instantiate(deps, env, info, msg)
     }

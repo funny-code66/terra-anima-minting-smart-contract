@@ -1,8 +1,17 @@
+use crate::threshold::{Threshold, ThresholdResponse};
+use cosmwasm_std::{Binary, CosmosMsg, Empty, Uint128};
+use cw0::{Duration, Expiration};
+use cw3::Vote;
+use cw721::CustomMsg;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
-use cosmwasm_std::{Binary, Uint128};
-use cw721::{CustomMsg, Expiration};
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct Voter {
+    pub addr: String,
+    pub weight: u64,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct MigrateMsg {}
@@ -18,6 +27,15 @@ pub struct InstantiateMsg {
     /// This is designed for a base NFT that is controlled by an external program
     /// or contract. You will likely replace this with custom logic in custom NFTs
     pub minter: String,
+
+    /// CW3 signers
+    pub voters: Vec<Voter>,
+
+    /// Threshold value for proposal execute (e.g. k of N)
+    pub required_weight: u64,
+
+    /// Voting Expiration days
+    pub max_voting_period: Duration,
 }
 
 /// This is like Cw721ExecuteMsg but we add a Mint command for an owner
@@ -95,6 +113,27 @@ pub enum ExecuteMsg<T> {
 
     // Add extension for token_id
     AddExtension(AddExtensionMsg<T>),
+
+    ///////////////////////////////
+    /////    CW3 multisig    //////
+    ///////////////////////////////
+    Propose {
+        title: String,
+        description: String,
+        msgs: Vec<CosmosMsg<Empty>>,
+        // note: we ignore API-spec'd earliest if passed, always opens immediately
+        latest: Option<Expiration>,
+    },
+    Vote {
+        proposal_id: u64,
+        vote: Vote,
+    },
+    Execute {
+        proposal_id: u64,
+    },
+    Close {
+        proposal_id: u64,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -217,6 +256,46 @@ pub enum QueryMsg {
         sale_price: Uint128,
     },
     CheckRoyalties {},
+
+    ///////////////////////////////
+    /////    CW3 multisig    //////
+    ///////////////////////////////
+    /// Return ThresholdResponse
+    Threshold {},
+    /// Returns ProposalResponse
+    Proposal {
+        proposal_id: u64,
+    },
+    /// Returns ProposalListResponse
+    ListProposals {
+        start_after: Option<u64>,
+        limit: Option<u32>,
+    },
+    /// Returns ProposalListResponse
+    ReverseProposals {
+        start_before: Option<u64>,
+        limit: Option<u32>,
+    },
+    /// Returns VoteResponse
+    Vote {
+        proposal_id: u64,
+        voter: String,
+    },
+    /// Returns VoteListResponse
+    ListVotes {
+        proposal_id: u64,
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
+    /// Returns VoterInfo
+    Voter {
+        address: String,
+    },
+    /// Returns VoterListResponse
+    ListVoters {
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
@@ -268,4 +347,111 @@ pub struct IsOnPresaleResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
 pub struct GetExtensionResponse<T> {
     pub extension: T,
+}
+
+/// Returns the vote (opinion as well as weight counted) as well as
+/// the address of the voter who submitted it
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoteInfo {
+    pub proposal_id: u64,
+    pub voter: String,
+    pub vote: Vote,
+    pub weight: u64,
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, JsonSchema, Debug)]
+#[serde(rename_all = "lowercase")]
+#[repr(u8)]
+pub enum Status {
+    /// proposal was created, but voting has not yet begun for whatever reason
+    Pending = 1,
+    /// you can vote on this
+    Open = 2,
+    /// voting is over and it did not pass
+    Rejected = 3,
+    /// voting is over and it did pass, but has not yet executed
+    Passed = 4,
+    /// voting is over it passed, and the proposal was executed
+    Executed = 5,
+}
+
+/// Note, if you are storing custom messages in the proposal,
+/// the querier needs to know what possible custom message types
+/// those are in order to parse the response
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct ProposalResponse<T = Empty>
+where
+    T: Clone + fmt::Debug + PartialEq + JsonSchema,
+{
+    pub id: u64,
+    pub title: String,
+    pub description: String,
+    pub msgs: Vec<CosmosMsg<T>>,
+    pub status: Status,
+    pub expires: Expiration,
+    /// This is the threshold that is applied to this proposal. Both the rules of the voting contract,
+    /// as well as the total_weight of the voting group may have changed since this time. That means
+    /// that the generic `Threshold{}` query does not provide valid information for existing proposals.
+    pub threshold: ThresholdResponse,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct ProposalListResponse {
+    pub proposals: Vec<ProposalResponse>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoteListResponse {
+    pub votes: Vec<VoteInfo>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoteResponse {
+    pub vote: Option<VoteInfo>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoterResponse {
+    pub weight: Option<u64>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoterListResponse {
+    pub voters: Vec<VoterDetail>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+pub struct VoterDetail {
+    pub addr: String,
+    pub weight: u64,
+}
+
+impl From<ThresholdResponse> for cw3::ThresholdResponse {
+    fn from(res: ThresholdResponse) -> cw3::ThresholdResponse {
+        match res {
+            ThresholdResponse::AbsoluteCount {
+                weight,
+                total_weight,
+            } => cw3::ThresholdResponse::AbsoluteCount {
+                weight,
+                total_weight,
+            },
+            ThresholdResponse::AbsolutePercentage {
+                percentage,
+                total_weight,
+            } => cw3::ThresholdResponse::AbsolutePercentage {
+                percentage,
+                total_weight,
+            },
+            ThresholdResponse::ThresholdQuorum {
+                threshold,
+                quorum,
+                total_weight,
+            } => cw3::ThresholdResponse::ThresholdQuorum {
+                threshold,
+                quorum,
+                total_weight,
+            },
+        }
+    }
 }

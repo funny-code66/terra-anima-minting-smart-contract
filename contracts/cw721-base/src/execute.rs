@@ -1,9 +1,7 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use cosmwasm_std::{
-    Addr, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, StdResult, Uint128,
-};
+use cosmwasm_std::{Addr, Binary, Coin, Deps, DepsMut, Env, MessageInfo, Response, Uint128};
 
 use cw2::set_contract_version;
 use cw721::{
@@ -14,6 +12,8 @@ use crate::constants::*;
 use crate::error::ContractError;
 use crate::msg::*;
 use crate::state::*;
+use crate::state2::*;
+use crate::threshold::Threshold;
 
 impl<'a, T, C> Cw721Contract<'a, T, C>
 where
@@ -26,9 +26,14 @@ where
         env: Env,
         _info: MessageInfo,
         msg: InstantiateMsg,
-    ) -> StdResult<Response<C>> {
+    ) -> Result<Response<C>, ContractError> {
+        // Should pass voters
+        if msg.voters.is_empty() {
+            return Err(ContractError::NoVoters {});
+        }
         set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
+        // Save contract info
         let info = ContractInfoResponse {
             name: msg.name,
             symbol: msg.symbol,
@@ -38,6 +43,25 @@ where
 
         self.minter.save(deps.storage, &minter)?;
         self.time_deployed.save(deps.storage, &env.block.time)?;
+
+        // Save cw3 info
+        let total_weight = msg.voters.iter().map(|v| v.weight).sum();
+        // msg.threshold.validate(total_weight)?;
+
+        let cfg = Config {
+            threshold: Threshold::AbsoluteCount {
+                weight: msg.required_weight,
+            },
+            total_weight,
+            max_voting_period: msg.max_voting_period,
+        };
+        self.CONFIG.save(deps.storage, &cfg)?;
+
+        // add all voters
+        for voter in msg.voters.iter() {
+            let key = deps.api.addr_validate(&voter.addr)?;
+            self.VOTERS.save(deps.storage, &key, &voter.weight)?;
+        }
         Ok(Response::default())
     }
 
@@ -134,15 +158,17 @@ where
         {
             match fund.amount.u128() {
                 130000 => msg.token_num == String::from("a"),
-                125000 => msg.token_num == String::from("b"),
+                125000 => {
+                    msg.token_num == String::from("b")
+                        || msg.token_num == String::from("c")
+                        || msg.token_num == String::from("d")
+                }
                 _ => false,
             }
         } else if !get_presale.flag && balance < 2 && token_minted.count < 4 {
             match fund.amount.u128() {
                 150000 => msg.token_num == String::from("a"),
-                145000 => msg.token_num == String::from("b"),
                 140000 => msg.token_num == String::from("c"),
-                135000 => msg.token_num == String::from("d"),
                 130000 => msg.token_num == String::from("e"),
                 _ => false,
             }

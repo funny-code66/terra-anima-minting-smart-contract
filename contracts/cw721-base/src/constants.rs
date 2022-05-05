@@ -12,3 +12,7 @@ pub const ADDR_TREAS: &str = "terra1dsxpz56r8m3kga773a8f8754r7y7jqs95lda4k";
 // royalties
 pub const ROYALTY_ADDRESS: &str = "terra1dsxpz56r8m3kga773a8f8754r7y7jqs95lda4k";
 pub const ROYALTY_PERCENTAGE: u64 = 6u64;
+
+// settings for pagination
+pub const MAX_LIMIT: u32 = 30;
+pub const DEFAULT_LIMIT: u32 = 10;
