@@ -1,11 +1,13 @@
-// use crate::constants::*;
+use crate::constants::*;
 use crate::error::ContractError;
 use crate::msg::*;
 use crate::state::*;
 use crate::state2::*;
 use crate::traits::*;
 
-use cosmwasm_std::{Addr, CosmosMsg, DepsMut, Empty, Env, MessageInfo, Response, /* Uint128 */};
+use cosmwasm_std::{
+    Addr, BankMsg, Coin, CosmosMsg, DepsMut, Empty, Env, MessageInfo, Response, Uint128,
+};
 use cw0::Expiration;
 use cw3::Vote;
 use std::cmp::Ordering;
@@ -22,7 +24,7 @@ impl<'a> Cw721ExtendedContract<'a> {
     ) -> Result<Response, ContractError> {
         match msg {
             // ExecuteMsg::FreeMint(msg) => self.execute_free_mint(deps, env, info, msg),
-            // ExecuteMsg::Withdraw {} => self.execute_withdraw(deps, env, info),
+            ExecuteMsg::Withdraw {} => self.execute_withdraw(deps, env, info),
             // ExecuteMsg::SetArtReveal { art_reveal } => {
             //     self.execute_set_art_reveal(deps, env, info, art_reveal)
             // }
@@ -57,69 +59,69 @@ impl<'a> Cw721ExtendedContract<'a> {
 }
 
 impl<'a> Cw721ExtendedExecute<Extension> for Cw721ExtendedContract<'a> {
-    // fn execute_withdraw(
-    //     &self,
-    //     deps: DepsMut,
-    //     env: Env,
-    //     _info: MessageInfo,
-    // ) -> Result<Response, ContractError> {
-    //     let team_signed = self
-    //         .cw3_signature
-    //         .may_load(deps.storage, &Addr::unchecked(ADDR_TEAM))?
-    //         .unwrap_or(false);
-    //     let pro_signed = self
-    //         .cw3_signature
-    //         .may_load(deps.storage, &Addr::unchecked(ADDR_PRO))?
-    //         .unwrap_or(false);
-    //     let treas_signed = self
-    //         .cw3_signature
-    //         .may_load(deps.storage, &Addr::unchecked(ADDR_TREAS))?
-    //         .unwrap_or(false);
+    fn execute_withdraw(
+        &self,
+        deps: DepsMut,
+        env: Env,
+        _info: MessageInfo,
+    ) -> Result<Response, ContractError> {
+        //     let team_signed = self
+        //         .cw3_signature
+        //         .may_load(deps.storage, &Addr::unchecked(ADDR_TEAM))?
+        //         .unwrap_or(false);
+        //     let pro_signed = self
+        //         .cw3_signature
+        //         .may_load(deps.storage, &Addr::unchecked(ADDR_PRO))?
+        //         .unwrap_or(false);
+        //     let treas_signed = self
+        //         .cw3_signature
+        //         .may_load(deps.storage, &Addr::unchecked(ADDR_TREAS))?
+        //         .unwrap_or(false);
 
-    //     if !team_signed || !pro_signed || !treas_signed {
-    //         return Err(ContractError::NotAllSigned {});
-    //     }
+        //     if !team_signed || !pro_signed || !treas_signed {
+        //         return Err(ContractError::NotAllSigned {});
+        //     }
 
-    //     let current_uluna_amount = deps
-    //         .querier
-    //         .query_balance(env.contract.address.to_string(), "uluna")?
-    //         .amount;
+        let current_uluna_amount = deps
+            .querier
+            .query_balance(env.contract.address.to_string(), "uluna")?
+            .amount;
 
-    //     let team_portion = current_uluna_amount * Uint128::from(30u128) / Uint128::from(100u128);
-    //     let pro_portion = current_uluna_amount * Uint128::from(14u128) / Uint128::from(100u128);
-    //     let treas_portion = current_uluna_amount * Uint128::from(56u128) / Uint128::from(100u128);
+        let team_portion = current_uluna_amount * Uint128::from(30u128) / Uint128::from(100u128);
+        let pro_portion = current_uluna_amount * Uint128::from(14u128) / Uint128::from(100u128);
+        let treas_portion = current_uluna_amount * Uint128::from(56u128) / Uint128::from(100u128);
 
-    //     self.cw3_signature
-    //         .save(deps.storage, &Addr::unchecked(ADDR_TEAM), &(false))?;
-    //     self.cw3_signature
-    //         .save(deps.storage, &Addr::unchecked(ADDR_PRO), &(false))?;
-    //     self.cw3_signature
-    //         .save(deps.storage, &Addr::unchecked(ADDR_TREAS), &(false))?;
+        // self.cw3_signature
+        //     .save(deps.storage, &Addr::unchecked(ADDR_TEAM), &(false))?;
+        // self.cw3_signature
+        //     .save(deps.storage, &Addr::unchecked(ADDR_PRO), &(false))?;
+        // self.cw3_signature
+        //     .save(deps.storage, &Addr::unchecked(ADDR_TREAS), &(false))?;
 
-    //     let mut messages: Vec<CosmosMsg> = vec![];
-    //     messages.push(CosmosMsg::Bank(BankMsg::Send {
-    //         to_address: ADDR_TEAM.to_string(),
-    //         amount: vec![Coin {
-    //             denom: String::from("uluna"),
-    //             amount: team_portion,
-    //         }],
-    //     }));
-    //     messages.push(CosmosMsg::Bank(BankMsg::Send {
-    //         to_address: ADDR_PRO.to_string(),
-    //         amount: vec![Coin {
-    //             denom: String::from("uluna"),
-    //             amount: pro_portion,
-    //         }],
-    //     }));
-    //     messages.push(CosmosMsg::Bank(BankMsg::Send {
-    //         to_address: ADDR_TREAS.to_string(),
-    //         amount: vec![Coin {
-    //             denom: String::from("uluna"),
-    //             amount: treas_portion,
-    //         }],
-    //     }));
-    //     Ok(Response::new().add_messages(messages))
-    // }
+        let mut messages: Vec<CosmosMsg> = vec![];
+        messages.push(CosmosMsg::Bank(BankMsg::Send {
+            to_address: ADDR_TEAM.to_string(),
+            amount: vec![Coin {
+                denom: String::from("uluna"),
+                amount: team_portion,
+            }],
+        }));
+        messages.push(CosmosMsg::Bank(BankMsg::Send {
+            to_address: ADDR_PRO.to_string(),
+            amount: vec![Coin {
+                denom: String::from("uluna"),
+                amount: pro_portion,
+            }],
+        }));
+        messages.push(CosmosMsg::Bank(BankMsg::Send {
+            to_address: ADDR_TREAS.to_string(),
+            amount: vec![Coin {
+                denom: String::from("uluna"),
+                amount: treas_portion,
+            }],
+        }));
+        Ok(Response::new().add_messages(messages))
+    }
 
     // fn execute_set_art_reveal(
     //     &self,

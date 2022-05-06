@@ -29,12 +29,12 @@ pub trait Cw721ExtendedExecute<T>
 where
     T: Serialize + DeserializeOwned + Clone + Default,
 {
-    // fn execute_withdraw(
-    //     &self,
-    //     _deps: DepsMut,
-    //     _env: Env,
-    //     _info: MessageInfo,
-    // ) -> Result<Response, ContractError>;
+    fn execute_withdraw(
+        &self,
+        _deps: DepsMut,
+        _env: Env,
+        _info: MessageInfo,
+    ) -> Result<Response, ContractError>;
 
     // fn execute_set_art_reveal(
     //     &self,
