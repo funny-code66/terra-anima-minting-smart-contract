@@ -176,14 +176,14 @@ where
         //     false
         // };
 
-        let can_mint = token_minted.count < 100 && balance < 1 && fund.amount.u128() == 200000000;
+        let can_mint = token_minted.count < 100 && balance < 1 && fund.amount.u128() == 100000;
 
         if !can_mint {
             if token_minted.count >= 100 {
                 return Err(ContractError::SoldOut {});
             } else if balance >= 1 {
                 return Err(ContractError::WalletLimitExceeded {});
-            } else if fund.amount.u128() != 200000000 {
+            } else if fund.amount.u128() != 100000 {
                 return Err(ContractError::FundMismatch {});
             } else {
                 return Err(ContractError::Unauthorized {});

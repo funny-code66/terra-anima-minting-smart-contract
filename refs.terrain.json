@@ -1,9 +1,9 @@
 {
   "testnet": {
     "cw721-base": {
-      "codeId": "68483",
+      "codeId": "70151",
       "contractAddresses": {
-        "default": "terra1pxvw3w2977dsfvmt89j8upavs3fv240v00fh27"
+        "default": "terra1h2qvjhljnvnx2gd3ludneqhcnmj8ntdp2tl2hf"
       }
     }
   },
